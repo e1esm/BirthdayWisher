@@ -4,11 +4,18 @@ import (
 	route "BirthdayWisherBot/internal/router"
 	"BirthdayWisherBot/internal/service"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/joho/godotenv"
 	"log"
+	"os"
 )
 
 func main() {
-	bot, err := tgbotapi.NewBotAPI("6161612970:AAE4wWcup6gjYwChdmzesPEOhw195X3y98M")
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Panic("Couldn't have read env file")
+	}
+	token := os.Getenv("TOKEN")
+	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
 	}

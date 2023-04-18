@@ -29,19 +29,6 @@ func main() {
 	router := route.NewBirthdayRouter(bot, service.BridgeConnectorService{})
 
 	for update := range updates {
-		if update.Message != nil {
-			if update.Message.IsCommand() {
-
-			}
-			/*
-				log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-				msg.ReplyToMessageID = update.Message.MessageID
-
-				bot.Send(msg)
-
-			*/
-		}
+		router.HandleUpdate(update)
 	}
 }

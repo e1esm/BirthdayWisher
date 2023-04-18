@@ -6,11 +6,11 @@ import (
 )
 
 type Switcher interface {
-	add(message *tgbotapi.Update)
-	addFull(message *tgbotapi.Update)
-	change(message *tgbotapi.Update)
-	list(message *tgbotapi.Update)
-	soon(message *tgbotapi.Update)
+	add(message tgbotapi.Message)
+	addFull(message tgbotapi.Message)
+	change(message tgbotapi.Message)
+	list(message tgbotapi.Message)
+	soon(message tgbotapi.Message)
 }
 
 type BirthdayRouter struct {

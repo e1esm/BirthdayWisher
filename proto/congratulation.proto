@@ -1,0 +1,19 @@
+syntax="proto3";
+
+option go_package = "./proto";
+
+package congratulation_service;
+
+
+service CongratulationService{
+  rpc QueryForCongratulation(CongratulationRequest) returns (CongratulationResponse);
+}
+
+message CongratulationRequest{
+  string name = 1;
+}
+
+
+message CongratulationResponse{
+  string congratulationSentence = 1;
+}

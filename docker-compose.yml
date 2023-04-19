@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: db.dockerfile
+    container_name: wisher_database
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "5430:5430"
+    restart: always
+    networks:
+      - mynet
+  bot:
+    container_name: wisher_bot
+    build:
+      context: .
+      dockerfile: bot.dockerfile
+    restart: always
+    depends_on:
+      - postgres
+    stdin_open: true
+    expose:
+      - 8080
+    networks:
+      - mynet
+volumes:
+  dbdata:
+networks:
+  mynet:
+    driver: "bridge"
+    ipam:
+      config:
+        - subnet: 173.21.0.0/16
+          gateway: 173.21.0.1
+          aux_addresses:
+            postgres: 173.21.0.3
+            bot: 173.21.0.4

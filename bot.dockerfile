@@ -6,10 +6,14 @@ RUN apk update && apk add libc-dev && apk add gcc && apk add make && apk add bas
 
 COPY bot/ bot/
 
-COPY .env go.mod go.sum Makefile /app/
+COPY .env bot.dockerfile /app/
 
 ENV GOBIN /go/bin
 
-RUN go build -o main ./bot/cmd/main.go
+WORKDIR /app/bot
 
-CMD["./main"]
+RUN go mod download && go mod tidy
+
+RUN go build -o main ./cmd/main.go
+
+CMD ["./main"]

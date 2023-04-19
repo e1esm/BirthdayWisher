@@ -1,4 +1,4 @@
-module congr_proto
+module github.com/e1esm/congr_proto
 
 go 1.20
 

@@ -5,7 +5,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/grpc"
-
 	"log"
 	"net"
 	"os"

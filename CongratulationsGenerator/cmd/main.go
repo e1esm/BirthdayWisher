@@ -2,6 +2,7 @@ package main
 
 import (
 	"CongratulationsGenerator/internal/service"
+	"github.com/e1esm/congr_proto"
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/grpc"
@@ -15,17 +16,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error while reading from env file")
 	}
+
 	token := os.Getenv("AI_TOKEN")
 	port := os.Getenv("GRPC_PORT")
 	client := openai.NewClient(token)
-
-	server, err := net.Listen("tcp", port)
+	server, err := net.Listen("tcp", "aicaller"+port)
 
 	if err != nil {
 		log.Fatalf("Couldn't have started the server: %v", err)
 	}
+
 	grpcServer := grpc.NewServer()
-	pb.RegisterCongratulationServiceServer()
-	service.NewOpenAIService(client).Query("hey")
+	aiService := service.NewOpenAIService(client)
+	congr_proto.RegisterCongratulationServiceServer(grpcServer, aiService)
+
+	log.Printf("Server started at: %v", server.Addr())
+	if err := grpcServer.Serve(server); err != nil {
+		log.Fatalf("Failed to start: %v", err)
+	}
 
 }

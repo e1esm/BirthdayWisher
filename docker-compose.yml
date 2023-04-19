@@ -17,7 +17,8 @@ services:
       - "5430:5430"
     restart: always
     networks:
-      - mynet
+      mynet:
+        ipv4_address: 173.20.0.2
   bot:
     container_name: wisher_bot
     build:
@@ -26,11 +27,27 @@ services:
     restart: always
     depends_on:
       - postgres
+      - aicaller
     stdin_open: true
     expose:
       - 8080
     networks:
-      - mynet
+      mynet:
+          ipv4_address: 173.20.0.3
+  aicaller:
+    container_name: wisher_ai_requester
+    build:
+      context: .
+      dockerfile: congratulator.dockerfile
+    restart: always
+    depends_on:
+      - postgres
+    stdin_open: true
+    expose:
+      - 8081
+    networks:
+      mynet:
+          ipv4_address: 173.20.0.4
 volumes:
   dbdata:
 networks:
@@ -38,8 +55,5 @@ networks:
     driver: "bridge"
     ipam:
       config:
-        - subnet: 173.21.0.0/16
-          gateway: 173.21.0.1
-          aux_addresses:
-            postgres: 173.21.0.3
-            bot: 173.21.0.4
+        - subnet: 173.20.0.0/16
+          gateway: 173.20.0.1

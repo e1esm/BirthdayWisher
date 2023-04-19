@@ -32,8 +32,7 @@ func main() {
 
 	s := gocron.NewScheduler(time.UTC)
 	s.Every(2).Seconds().Do(func() {
-		msg := tgbotapi.NewMessage(330564202, "Yo bitch")
-		bot.Send(msg)
+		log.Println("Working fine")
 	})
 	s.StartAsync()
 	for update := range updates {

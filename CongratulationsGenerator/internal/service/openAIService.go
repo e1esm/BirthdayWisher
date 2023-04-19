@@ -31,6 +31,7 @@ func (s *OpenAIService) Query(name string) {
 		log.Fatalf("ChatCompletion error: %v", err)
 	}
 	fmt.Println(resp.Choices[0].Message.Content)
+
 }
 
 //(tg://user?id=?")

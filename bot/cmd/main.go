@@ -3,10 +3,12 @@ package main
 import (
 	route "BirthdayWisherBot/internal/router"
 	"BirthdayWisherBot/internal/service"
+	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -14,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Panic("Couldn't have read env file")
 	}
-	token := os.Getenv("TOKEN")
+	token := os.Getenv("BOT_TOKEN")
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
@@ -28,7 +30,14 @@ func main() {
 
 	router := route.NewBirthdayRouter(bot, service.BridgeConnectorService{})
 
+	s := gocron.NewScheduler(time.UTC)
+	s.Every(2).Seconds().Do(func() {
+		msg := tgbotapi.NewMessage(330564202, "Yo bitch")
+		bot.Send(msg)
+	})
+	s.StartAsync()
 	for update := range updates {
+
 		router.HandleUpdate(update)
 	}
 }

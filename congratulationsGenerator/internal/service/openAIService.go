@@ -5,6 +5,7 @@ import (
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/sashabaranov/go-openai"
 	"log"
+	"strings"
 )
 
 type OpenAIService struct {
@@ -22,6 +23,10 @@ func (s *OpenAIService) QueryForCongratulation(ctx context.Context, request *gen
 }
 
 func (s *OpenAIService) QueryFromAI(name string) string {
+	builder := strings.Builder{}
+	builder.WriteString("Wish happy birthday to ")
+	builder.WriteString(name)
+	builder.WriteString(" as a friend would do")
 	resp, err := s.Client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
@@ -29,7 +34,7 @@ func (s *OpenAIService) QueryFromAI(name string) string {
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,
-					Content: "Wish happy birthday to: " + name},
+					Content: builder.String()},
 			},
 		},
 	)

@@ -48,6 +48,19 @@ services:
     networks:
       mynet:
           ipv4_address: 173.20.0.4
+  bridge_server:
+    container_name: bridge_server
+    build:
+      context: .
+      dockerfile: bridge.dockerfile
+    restart: always
+    depends_on:
+      - postgres
+      - aicaller
+    stdin_open: true
+    networks:
+      mynet:
+        ipv4_address: 173.20.0.5
 volumes:
   dbdata:
 networks:

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"CongratulationsGenerator/internal/service"
+	"congratulationsGenerator/internal/service"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
@@ -19,8 +19,9 @@ func main() {
 
 	token := os.Getenv("AI_TOKEN")
 	port := os.Getenv("GRPC_PORT")
+	name := os.Getenv("AI_CALLER_CONTAINER_NAME")
 	client := openai.NewClient(token)
-	server, err := net.Listen("tcp", "aicaller"+port)
+	server, err := net.Listen("tcp", name+port)
 
 	if err != nil {
 		log.Fatalf("Couldn't have started the server: %v", err)

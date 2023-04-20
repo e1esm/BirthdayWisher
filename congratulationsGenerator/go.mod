@@ -1,4 +1,4 @@
-module CongratulationsGenerator
+module congratulationsGenerator
 
 go 1.20
 

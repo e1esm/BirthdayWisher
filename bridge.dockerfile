@@ -4,13 +4,13 @@ WORKDIR /app
 
 RUN apk update && apk add libc-dev && apk add gcc && apk add make && apk add bash
 
-COPY congratulationsGenerator/ CongratulationsGenerator/
+COPY bridgeServer/ bridgeServer/
 COPY protobuf/bridge_to_API/gen_proto/ protobuf/bridge_to_API/gen_proto/
-COPY .env congratulator.dockerfile /app/
+COPY .env bridge.dockerfile /app/
 
 ENV GOBIN /go/bin
 
-WORKDIR /app/CongratulationsGenerator
+WORKDIR /app/bridgeServer
 
 RUN go mod download && go mod tidy
 

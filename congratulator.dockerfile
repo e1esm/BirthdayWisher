@@ -5,7 +5,7 @@ WORKDIR /app
 RUN apk update && apk add libc-dev && apk add gcc && apk add make && apk add bash
 
 COPY CongratulationsGenerator/ CongratulationsGenerator/
-COPY congr_proto/ congr_proto/
+COPY protobuf/bridge_to_API/gen_proto/ protobuf/bridge_to_API/gen_proto/
 COPY .env congratulator.dockerfile /app/
 
 ENV GOBIN /go/bin

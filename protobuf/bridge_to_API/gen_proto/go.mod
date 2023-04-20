@@ -1,4 +1,4 @@
-module github.com/e1esm/congr_proto
+module github.com/e1esm/protobuf/bridge_to_API/gen_proto
 
 go 1.20
 

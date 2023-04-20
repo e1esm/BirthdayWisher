@@ -2,7 +2,7 @@ package main
 
 import (
 	"CongratulationsGenerator/internal/service"
-	"github.com/e1esm/congr_proto"
+	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 	"google.golang.org/grpc"
@@ -28,7 +28,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	aiService := service.NewOpenAIService(client)
-	congr_proto.RegisterCongratulationServiceServer(grpcServer, aiService)
+	gen_proto.RegisterCongratulationServiceServer(grpcServer, aiService)
 
 	log.Printf("Server started at: %v", server.Addr())
 	if err := grpcServer.Serve(server); err != nil {

@@ -6,10 +6,10 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/sashabaranov/go-openai v1.8.0
 	google.golang.org/grpc v1.54.0
-	github.com/e1esm/congr_proto v1.0.0
+	github.com/e1esm/protobuf/bridge_to_API/gen_proto v1.0.0
 )
 
-replace github.com/e1esm/congr_proto => ../congr_proto
+replace github.com/e1esm/protobuf/bridge_to_API/gen_proto => ./../protobuf/bridge_to_API/gen_proto
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect

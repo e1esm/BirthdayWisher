@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bridgeServer/config"
 	"bridgeServer/internal/service"
 	"fmt"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
@@ -18,9 +19,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't have opened env file: %v", err)
 	}
-	db := dbConfiguration()
-	client := GRPCConfiguration()
-	gptService := service.NewGPTService(client)
+
+	cfg := config.NewConfig(dbConfiguration(), GRPCConfiguration())
+	gptService := service.NewGPTService(cfg.Client)
 	for i := 0; i < 10; i++ {
 		gptService.GetCongratulation("egor")
 	}

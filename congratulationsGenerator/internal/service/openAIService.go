@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/sashabaranov/go-openai"
 	"log"
@@ -24,9 +25,7 @@ func (s *OpenAIService) QueryForCongratulation(ctx context.Context, request *gen
 
 func (s *OpenAIService) QueryFromAI(name string) string {
 	builder := strings.Builder{}
-	builder.WriteString("Wish happy birthday to ")
-	builder.WriteString(name)
-	builder.WriteString(" as a friend would do")
+	builder.WriteString(fmt.Sprintf("Поздравь %s с днем рождения\n", name))
 	resp, err := s.Client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{

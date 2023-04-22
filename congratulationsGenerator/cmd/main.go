@@ -22,7 +22,7 @@ func main() {
 	name := os.Getenv("AI_CALLER_CONTAINER_NAME")
 	client := openai.NewClient(token)
 	server, err := net.Listen("tcp", name+port)
-
+	defer server.Close()
 	if err != nil {
 		log.Fatalf("Couldn't have started the server: %v", err)
 	}

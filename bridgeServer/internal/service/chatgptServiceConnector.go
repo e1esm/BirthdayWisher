@@ -16,11 +16,11 @@ func NewGPTService(client gen_proto.CongratulationServiceClient) *GPTService {
 }
 
 func (s *GPTService) GetCongratulation(name string) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	res, err := s.client.QueryForCongratulation(ctx, &gen_proto.CongratulationRequest{Name: name})
 	if err != nil {
-		log.Fatalf("Couldn't have gotten result from querying congratulation")
+		log.Fatalf("Couldn't have gotten result from querying congratulation: %s", err)
 	}
 	log.Printf("%s\n", res.CongratulationSentence)
 }

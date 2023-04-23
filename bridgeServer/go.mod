@@ -6,8 +6,10 @@ require (
 	github.com/e1esm/protobuf/bridge_to_API/gen_proto v1.0.0
 	github.com/joho/godotenv v1.5.1
 	google.golang.org/grpc v1.54.0
+	github.com/e1esm/protobuf/bot_to_server/gen_proto v1.0.0
 )
 
+replace github.com/e1esm/protobuf/bot_to_server/gen_proto => ./../protobuf/bot_to_server/gen_proto
 replace github.com/e1esm/protobuf/bridge_to_API/gen_proto => ./../protobuf/bridge_to_API/gen_proto
 
 require (

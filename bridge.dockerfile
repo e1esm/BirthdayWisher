@@ -6,6 +6,7 @@ RUN apk update && apk add libc-dev && apk add gcc && apk add make && apk add bas
 
 COPY bridgeServer/ bridgeServer/
 COPY protobuf/bridge_to_API/gen_proto/ protobuf/bridge_to_API/gen_proto/
+COPY protobuf/bot_to_server/gen_proto/ protobuf/bot_to_server/gen_proto/
 COPY .env bridge.dockerfile /app/
 
 ENV GOBIN /go/bin

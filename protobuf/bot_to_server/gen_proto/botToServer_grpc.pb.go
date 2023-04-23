@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.12
-// source: protobuf/bot_to_server_proto/botToServer.proto
+// source: protobuf/bot_to_server/botToServer.proto
 
 package gen_proto
 
@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CongratulationServiceClient interface {
 	SaveUserInfo(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetDataForCongratulations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CongratulationResponse, error)
+	GetDataForCongratulations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (CongratulationService_GetDataForCongratulationsClient, error)
 }
 
 type congratulationServiceClient struct {
@@ -49,13 +49,36 @@ func (c *congratulationServiceClient) SaveUserInfo(ctx context.Context, in *User
 	return out, nil
 }
 
-func (c *congratulationServiceClient) GetDataForCongratulations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CongratulationResponse, error) {
-	out := new(CongratulationResponse)
-	err := c.cc.Invoke(ctx, CongratulationService_GetDataForCongratulations_FullMethodName, in, out, opts...)
+func (c *congratulationServiceClient) GetDataForCongratulations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (CongratulationService_GetDataForCongratulationsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &CongratulationService_ServiceDesc.Streams[0], CongratulationService_GetDataForCongratulations_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &congratulationServiceGetDataForCongratulationsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type CongratulationService_GetDataForCongratulationsClient interface {
+	Recv() (*CongratulationResponse, error)
+	grpc.ClientStream
+}
+
+type congratulationServiceGetDataForCongratulationsClient struct {
+	grpc.ClientStream
+}
+
+func (x *congratulationServiceGetDataForCongratulationsClient) Recv() (*CongratulationResponse, error) {
+	m := new(CongratulationResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // CongratulationServiceServer is the server API for CongratulationService service.
@@ -63,7 +86,7 @@ func (c *congratulationServiceClient) GetDataForCongratulations(ctx context.Cont
 // for forward compatibility
 type CongratulationServiceServer interface {
 	SaveUserInfo(context.Context, *UserRequest) (*emptypb.Empty, error)
-	GetDataForCongratulations(context.Context, *emptypb.Empty) (*CongratulationResponse, error)
+	GetDataForCongratulations(*emptypb.Empty, CongratulationService_GetDataForCongratulationsServer) error
 	mustEmbedUnimplementedCongratulationServiceServer()
 }
 
@@ -74,8 +97,8 @@ type UnimplementedCongratulationServiceServer struct {
 func (UnimplementedCongratulationServiceServer) SaveUserInfo(context.Context, *UserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveUserInfo not implemented")
 }
-func (UnimplementedCongratulationServiceServer) GetDataForCongratulations(context.Context, *emptypb.Empty) (*CongratulationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDataForCongratulations not implemented")
+func (UnimplementedCongratulationServiceServer) GetDataForCongratulations(*emptypb.Empty, CongratulationService_GetDataForCongratulationsServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetDataForCongratulations not implemented")
 }
 func (UnimplementedCongratulationServiceServer) mustEmbedUnimplementedCongratulationServiceServer() {}
 
@@ -108,22 +131,25 @@ func _CongratulationService_SaveUserInfo_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CongratulationService_GetDataForCongratulations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
+func _CongratulationService_GetDataForCongratulations_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(emptypb.Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(CongratulationServiceServer).GetDataForCongratulations(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CongratulationService_GetDataForCongratulations_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CongratulationServiceServer).GetDataForCongratulations(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(CongratulationServiceServer).GetDataForCongratulations(m, &congratulationServiceGetDataForCongratulationsServer{stream})
+}
+
+type CongratulationService_GetDataForCongratulationsServer interface {
+	Send(*CongratulationResponse) error
+	grpc.ServerStream
+}
+
+type congratulationServiceGetDataForCongratulationsServer struct {
+	grpc.ServerStream
+}
+
+func (x *congratulationServiceGetDataForCongratulationsServer) Send(m *CongratulationResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // CongratulationService_ServiceDesc is the grpc.ServiceDesc for CongratulationService service.
@@ -137,11 +163,13 @@ var CongratulationService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SaveUserInfo",
 			Handler:    _CongratulationService_SaveUserInfo_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "GetDataForCongratulations",
-			Handler:    _CongratulationService_GetDataForCongratulations_Handler,
+			StreamName:    "GetDataForCongratulations",
+			Handler:       _CongratulationService_GetDataForCongratulations_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "protobuf/bot_to_server_proto/botToServer.proto",
+	Metadata: "protobuf/bot_to_server/botToServer.proto",
 }

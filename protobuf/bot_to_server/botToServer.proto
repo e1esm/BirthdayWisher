@@ -8,7 +8,7 @@ package bridgeServer_service;
 
 service CongratulationService{
   rpc SaveUserInfo(UserRequest) returns (google.protobuf.Empty);
-  rpc GetDataForCongratulations(google.protobuf.Empty) returns (CongratulationResponse);
+  rpc GetDataForCongratulations(google.protobuf.Empty) returns (stream CongratulationResponse);
 }
 
 message UserRequest{

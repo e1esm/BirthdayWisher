@@ -2,8 +2,8 @@ package main
 
 import (
 	"bridgeServer/config"
-	"bridgeServer/internal/service"
 	"fmt"
+	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -11,6 +11,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"net"
 	"os"
 )
 
@@ -19,15 +20,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't have opened env file: %v", err)
 	}
-
-	cfg := config.NewConfig(dbConfiguration(), GRPCConfiguration())
-	gptService := service.NewGPTService(cfg.Client)
-	for i := 0; i < 10; i++ {
-		gptService.GetCongratulation("egor")
+	cfg := config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
+	port := os.Getenv("GRPC_PORT")
+	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
+	server, err := net.Listen("tcp", address+port)
+	if err != nil {
+		log.Fatalf("%s", err)
 	}
+	grpcServer := grpc.NewServer()
+	bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, cfg)
+	if err = grpcServer.Serve(server); err != nil {
+		log.Fatalf("%s", err)
+	}
+	/*
+		gptService := service.NewGPTService(cfg.Client)
+		for i := 0; i < 10; i++ {
+			gptService.GetCongratulation("egor")
+		}
+
+	*/
 }
 
-func GRPCConfiguration() gen_proto.CongratulationServiceClient {
+func GRPCClientConfiguration() gen_proto.CongratulationServiceClient {
 	port := os.Getenv("GRPC_PORT")
 	name := os.Getenv("AI_CALLER_CONTAINER_NAME")
 	conn, err := grpc.Dial(name+port, grpc.WithTransportCredentials(insecure.NewCredentials()))

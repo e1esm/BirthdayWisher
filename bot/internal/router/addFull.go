@@ -17,10 +17,9 @@ func (r *BirthdayRouter) addFull(message tgbotapi.Message) {
 		return
 	}
 	splittedMessage := strings.Split(message.CommandArguments(), ".")
-	date := fmt.Sprintf("%s-%s-%sT01:01:01:001Z", splittedMessage[2], splittedMessage[0], splittedMessage[1])
+	date := fmt.Sprintf("%s-%s-%s", splittedMessage[2], splittedMessage[1], splittedMessage[0])
 	chat := bridge.NewChat(message.Chat.ID)
 	user := bridge.NewUser(message.From.ID, date, *chat)
-
 	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%#+v", user))
 	r.bot.Send(msg)
 }

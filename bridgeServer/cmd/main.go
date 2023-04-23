@@ -23,11 +23,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't have opened env file: %v", err)
 	}
-	_ = config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
+
+	cfg := config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
 	repositories := repository.NewRepositories(repository.NewUserRepository(cfg.DB), repository.NewChatRepository(cfg.DB))
 	chatService := service.NewChatService(repositories)
 	userService := service.NewUserService(repositories)
 	serverImpl := config.NewServer(userService, chatService)
+
 	port := os.Getenv("GRPC_PORT")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
 	server, err := net.Listen("tcp", address+port)

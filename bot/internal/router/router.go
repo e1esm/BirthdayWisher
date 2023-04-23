@@ -14,8 +14,9 @@ type Switcher interface {
 }
 
 type BirthdayRouter struct {
-	bot           *tgbotapi.BotAPI
-	bridgeService service.BridgeConnectorService
+	bot              *tgbotapi.BotAPI
+	bridgeService    service.BridgeConnectorService
+	ConnectorService service.BridgeConnectorService
 }
 
 func NewBirthdayRouter(bot *tgbotapi.BotAPI, connectorService service.BridgeConnectorService) *BirthdayRouter {

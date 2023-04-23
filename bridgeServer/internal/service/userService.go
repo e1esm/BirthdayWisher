@@ -1,6 +1,9 @@
 package service
 
-import "bridgeServer/internal/repository"
+import (
+	"bridgeServer/internal/model"
+	"bridgeServer/internal/repository"
+)
 
 type UserService struct {
 	repositories *repository.Repositories
@@ -8,4 +11,8 @@ type UserService struct {
 
 func NewUserService(repositories *repository.Repositories) *UserService {
 	return &UserService{repositories: repositories}
+}
+
+func (s *UserService) SaveUser(user *model.User) {
+	s.repositories.UserRepository.SaveUser(user)
 }

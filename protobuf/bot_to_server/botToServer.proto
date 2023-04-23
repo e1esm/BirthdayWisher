@@ -17,6 +17,7 @@ message UserRequest{
   message ChatRequest{
     int64 chatID = 1;
   }
+  ChatRequest chatRequest = 3;
 }
 
 

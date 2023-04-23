@@ -21,5 +21,6 @@ func (r *BirthdayRouter) add(message tgbotapi.Message) {
 	chat := bridge.NewChat(message.Chat.ID)
 	user := bridge.NewUser(message.From.ID, date, *chat)
 	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%#+v", user))
+	
 	r.bot.Send(msg)
 }

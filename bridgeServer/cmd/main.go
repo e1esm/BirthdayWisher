@@ -2,6 +2,9 @@ package main
 
 import (
 	"bridgeServer/config"
+	"bridgeServer/internal/model"
+	"bridgeServer/internal/repository"
+	"bridgeServer/internal/service"
 	"fmt"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
@@ -20,7 +23,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Couldn't have opened env file: %v", err)
 	}
-	cfg := config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
+	_ = config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
+	repositories := repository.NewRepositories(repository.NewUserRepository(cfg.DB), repository.NewChatRepository(cfg.DB))
+	chatService := service.NewChatService(repositories)
+	userService := service.NewUserService(repositories)
+	serverImpl := config.NewServer(userService, chatService)
 	port := os.Getenv("GRPC_PORT")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
 	server, err := net.Listen("tcp", address+port)
@@ -28,7 +35,7 @@ func main() {
 		log.Fatalf("%s", err)
 	}
 	grpcServer := grpc.NewServer()
-	bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, cfg)
+	bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, serverImpl)
 	if err = grpcServer.Serve(server); err != nil {
 		log.Fatalf("%s", err)
 	}
@@ -61,6 +68,8 @@ func dbConfiguration() *gorm.DB {
 	db_host := os.Getenv("DB_CONTAINER_NAME")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", db_host, db_user, db_password, db_name, db_port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db.AutoMigrate(model.User{}, model.Chat{})
+
 	if err != nil {
 		log.Fatal(err)
 	}

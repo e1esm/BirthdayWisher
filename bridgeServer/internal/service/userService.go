@@ -3,9 +3,9 @@ package service
 import "bridgeServer/internal/repository"
 
 type UserService struct {
-	userRepository repository.UserRepository
+	repositories *repository.Repositories
 }
 
-func NewUserService(userRepository repository.UserRepository) *UserService {
-	return &UserService{userRepository: userRepository}
+func NewUserService(repositories *repository.Repositories) *UserService {
+	return &UserService{repositories: repositories}
 }

@@ -3,9 +3,9 @@ package service
 import "bridgeServer/internal/repository"
 
 type ChatService struct {
-	chatRepository repository.ChatRepository
+	repositories *repository.Repositories
 }
 
-func NewChatService(chatRepository repository.ChatRepository) *ChatService {
-	return &ChatService{chatRepository: chatRepository}
+func NewChatService(repositories *repository.Repositories) *ChatService {
+	return &ChatService{repositories: repositories}
 }

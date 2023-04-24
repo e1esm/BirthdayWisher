@@ -29,9 +29,9 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 	date, err := time.Parse(time.DateOnly, req.Date)
 	log.Println(date)
 	if err != nil {
-		return nil, err
+		return new(emptypb.Empty), err
 	}
 	user := model.NewUser(req.UserID, date, []model.Chat{*chat})
 	s.userService.SaveUser(user)
-	return nil, nil
+	return new(emptypb.Empty), nil
 }

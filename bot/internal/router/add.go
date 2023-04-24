@@ -4,6 +4,7 @@ import (
 	"BirthdayWisherBot/internal/models/bridge"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -22,6 +23,8 @@ func (r *BirthdayRouter) add(message tgbotapi.Message) {
 	user := bridge.NewUser(message.From.ID, date, *chat)
 
 	err := r.bridgeService.SaveUser(*user)
+	log.Println(user.CurrentChat)
+	log.Println(message.Chat.ID)
 	if err != nil {
 		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не получилось сохранить данные %s в БД", message.From.FirstName))
 		r.bot.Send(msg)

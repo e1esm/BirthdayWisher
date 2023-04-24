@@ -21,7 +21,7 @@ func main() {
 	}
 	token := os.Getenv("BOT_TOKEN")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
-	port := os.Getenv("grpc_port")
+	port := os.Getenv("GRPC_PORT")
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		log.Panic(err)
@@ -32,6 +32,7 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
+	log.Println(address + port)
 	conn, err := grpc.Dial(address+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("%s", err)
@@ -43,7 +44,7 @@ func main() {
 
 	s := gocron.NewScheduler(time.UTC)
 	s.Every(2).Seconds().Do(func() {
-		log.Println("Working fine")
+		log.Println(port)
 	})
 	s.StartAsync()
 	for update := range updates {

@@ -20,7 +20,13 @@ func (r *BirthdayRouter) add(message tgbotapi.Message) {
 	date := fmt.Sprintf("1970-%s-%s", splittedMessage[1], splittedMessage[0])
 	chat := bridge.NewChat(message.Chat.ID)
 	user := bridge.NewUser(message.From.ID, date, *chat)
-	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%#+v", user))
-	
+
+	err := r.bridgeService.SaveUser(*user)
+	if err != nil {
+		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не получилось сохранить данные %s в БД", message.From.FirstName))
+		r.bot.Send(msg)
+		return
+	}
+	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Данные %s были внесены в БД", message.From.FirstName))
 	r.bot.Send(msg)
 }

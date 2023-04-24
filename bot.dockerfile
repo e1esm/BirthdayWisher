@@ -7,6 +7,7 @@ RUN apk update && apk add libc-dev && apk add gcc && apk add make && apk add bas
 COPY bot/ bot/
 
 COPY .env bot.dockerfile /app/
+COPY protobuf/bot_to_server/gen_proto/ protobuf/bot_to_server/gen_proto/
 
 ENV GOBIN /go/bin
 

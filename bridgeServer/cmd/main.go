@@ -16,6 +16,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 )
 
 func main() {
@@ -70,7 +71,16 @@ func dbConfiguration() *gorm.DB {
 	db_password := os.Getenv("DB_PASSWORD")
 	db_host := os.Getenv("DB_CONTAINER_NAME")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", db_host, db_user, db_password, db_name, db_port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		NowFunc: func() time.Time {
+			now := time.Now()
+			localization, err := time.LoadLocation("Europe/Moscow")
+			if err != nil {
+				log.Fatal(err)
+			}
+			return now.In(localization)
+		},
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

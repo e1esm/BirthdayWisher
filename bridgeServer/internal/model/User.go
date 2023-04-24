@@ -7,11 +7,11 @@ import (
 
 type User struct {
 	gorm.Model
-	userId      int64
-	date        time.Time
-	currentChat []Chat
+	UserId      int64
+	Date        time.Time
+	CurrentChat []Chat
 }
 
 func NewUser(userId int64, date time.Time, currentChat []Chat) *User {
-	return &User{userId: userId, date: date, currentChat: currentChat}
+	return &User{UserId: userId, Date: date, CurrentChat: currentChat}
 }

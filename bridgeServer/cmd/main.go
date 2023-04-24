@@ -25,6 +25,7 @@ func main() {
 	}
 
 	cfg := config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
+	defer cfg.DB.DB()
 	repositories := repository.NewRepositories(repository.NewUserRepository(cfg.DB), repository.NewChatRepository(cfg.DB))
 	chatService := service.NewChatService(repositories)
 	userService := service.NewUserService(repositories)
@@ -70,8 +71,11 @@ func dbConfiguration() *gorm.DB {
 	db_host := os.Getenv("DB_CONTAINER_NAME")
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", db_host, db_user, db_password, db_name, db_port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	db.AutoMigrate(model.User{}, model.Chat{})
-
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.Exec("SET TIME ZONE 'Europe/Moscow'")
+	err = db.AutoMigrate(model.User{}, model.Chat{})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     build:
@@ -7,10 +5,17 @@ services:
       dockerfile: db.dockerfile
     container_name: wisher_database
     image: postgres:latest
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h localhost -U postgres" ]
+      interval: 5s
+      timeout: 1s
+      retries: 2
     volumes:
       - dbdata:/var/lib/postgresql/data
     ports:
@@ -55,8 +60,10 @@ services:
       dockerfile: bridge.dockerfile
     restart: always
     depends_on:
-      - postgres
-      - aicaller
+      postgres:
+        condition: service_healthy
+      aicaller:
+        condition: service_started
     stdin_open: true
     networks:
       mynet:

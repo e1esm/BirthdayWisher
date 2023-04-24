@@ -14,5 +14,5 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (r *UserRepository) SaveUser(user *model.User) {
-	r.db.Save(user)
+	r.db.Create(user)
 }

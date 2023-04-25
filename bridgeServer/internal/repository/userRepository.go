@@ -14,5 +14,12 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (r *UserRepository) SaveUser(user *model.User) {
-	r.db.Create(user)
+	var retrievedUser model.User
+	r.db.First(&retrievedUser)
+	if retrievedUser.ID == 0 {
+		r.db.Create(user)
+
+	} else {
+		r.db.Model(user).Association("CurrentChat").Append(user.CurrentChat)
+	}
 }

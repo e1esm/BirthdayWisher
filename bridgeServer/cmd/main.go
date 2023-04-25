@@ -73,18 +73,17 @@ func dbConfiguration() *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", db_host, db_user, db_password, db_name, db_port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		NowFunc: func() time.Time {
-			now := time.Now()
 			localization, err := time.LoadLocation("Europe/Moscow")
 			if err != nil {
 				log.Fatal(err)
 			}
-			return now.In(localization)
+			return time.Now().In(localization)
 		},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.Exec("SET TIME ZONE 'Europe/Moscow'")
+	//db.Exec("SET TIME ZONE 'Europe/Moscow'")
 	err = db.AutoMigrate(model.User{}, model.Chat{})
 	if err != nil {
 		log.Fatal(err)

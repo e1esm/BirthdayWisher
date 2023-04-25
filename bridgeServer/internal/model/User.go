@@ -7,11 +7,11 @@ import (
 
 type User struct {
 	gorm.Model
-	UserId      int64
+	ID          int64 `gorm:"primaryKey"`
 	Date        time.Time
-	CurrentChat []Chat
+	CurrentChat []Chat `gorm:"foreignKey:ChatId"`
 }
 
 func NewUser(userId int64, date time.Time, currentChat []Chat) *User {
-	return &User{UserId: userId, Date: date, CurrentChat: currentChat}
+	return &User{ID: userId, Date: date, CurrentChat: currentChat}
 }

@@ -6,7 +6,6 @@ import (
 	"context"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 	"time"
 )
 
@@ -27,7 +26,6 @@ func NewServer(userService *service.UserService, chatService *service.ChatServic
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {
 	chat := model.NewChat(req.ChatRequest.ChatID, req.ChatRequest.ChatID)
 	date, err := time.Parse(time.DateOnly, req.Date)
-	log.Println(date)
 	if err != nil {
 		return new(emptypb.Empty), err
 	}

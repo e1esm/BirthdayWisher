@@ -3,7 +3,6 @@ package service
 import (
 	"bridgeServer/internal/model"
 	"bridgeServer/internal/repository"
-	"log"
 )
 
 type UserService struct {
@@ -15,7 +14,5 @@ func NewUserService(repositories *repository.Repositories) *UserService {
 }
 
 func (s *UserService) SaveUser(user *model.User) {
-	log.Println(user.ID)
-	log.Println(user.CurrentChat)
 	s.repositories.UserRepository.SaveUser(user)
 }

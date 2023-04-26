@@ -33,6 +33,7 @@ services:
     depends_on:
       - postgres
       - aicaller
+      - bridge_server
     stdin_open: true
     expose:
       - 8080

@@ -16,11 +16,11 @@ type Switcher interface {
 
 type BirthdayRouter struct {
 	bot              *tgbotapi.BotAPI
-	bridgeService    service.BridgeConnectorService
 	ConnectorService service.BridgeConnectorService
-	scheduler        *gocron.Scheduler
+	Scheduler        *gocron.Scheduler
 }
 
 func NewBirthdayRouter(bot *tgbotapi.BotAPI, connectorService service.BridgeConnectorService, scheduler *gocron.Scheduler) *BirthdayRouter {
-	return &BirthdayRouter{bot: bot, bridgeService: connectorService, scheduler: scheduler}
+
+	return &BirthdayRouter{bot: bot, ConnectorService: connectorService, Scheduler: scheduler}
 }

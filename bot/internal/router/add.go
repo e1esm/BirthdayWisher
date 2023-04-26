@@ -22,7 +22,7 @@ func (r *BirthdayRouter) add(message tgbotapi.Message) {
 	chat := bridge.NewChat(message.Chat.ID)
 	user := bridge.NewUser(message.From.ID, date, *chat, message.From.FirstName+message.From.LastName)
 
-	err := r.bridgeService.SaveUser(*user)
+	err := r.ConnectorService.SaveUser(*user)
 	log.Println(user.CurrentChat)
 	log.Println(message.Chat.ID)
 	if err != nil {

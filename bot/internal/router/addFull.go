@@ -23,7 +23,7 @@ func (r *BirthdayRouter) addFull(message tgbotapi.Message) {
 	chat := bridge.NewChat(message.Chat.ID)
 	user := bridge.NewUser(message.From.ID, date, *chat, message.From.FirstName+message.From.LastName)
 
-	err := r.bridgeService.SaveUser(*user)
+	err := r.ConnectorService.SaveUser(*user)
 	if err != nil {
 		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не получилось сохранить данные %s в БД", message.From.FirstName))
 		r.bot.Send(msg)

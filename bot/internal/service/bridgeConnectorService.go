@@ -33,11 +33,14 @@ func (s *BridgeConnectorService) SaveUser(user bridge.User) error {
 }
 
 func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationResponse, error) {
+	log.Println("Entered daily retriever")
 	messages := make([]*gen_proto.CongratulationResponse, 0, 10)
-	message, err := s.client.GetDataForCongratulations(context.Background(), new(emptypb.Empty))
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	message, err := s.client.GetDataForCongratulations(ctx, new(emptypb.Empty))
 	if err != nil {
 		log.Println("Couldn't have listened to server's stream")
-		return messages, err
+		return nil, err
 	}
 	for {
 		retrievedMessage, err := message.Recv()
@@ -46,10 +49,10 @@ func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationRe
 		}
 		if err != nil {
 			log.Println("Couldn't have retrieved message from protobuf")
-			return messages, nil
+			return nil, err
 		}
 		messages = append(messages, retrievedMessage)
 	}
-
+	log.Println(messages)
 	return messages, nil
 }

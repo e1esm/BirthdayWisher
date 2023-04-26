@@ -23,7 +23,7 @@ func NewBridgeConnectorService(client gen_proto.CongratulationServiceClient) *Br
 func (s *BridgeConnectorService) SaveUser(user bridge.User) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	_, err := s.client.SaveUserInfo(ctx, &gen_proto.UserRequest{UserID: user.UserId, Date: user.Date,
+	_, err := s.client.SaveUserInfo(ctx, &gen_proto.UserRequest{UserID: user.UserId, Date: user.Date, Username: user.Username,
 		ChatRequest: &gen_proto.UserRequest_ChatRequest{ChatID: user.CurrentChat.ChatId}})
 	if err != nil {
 		log.Println(err)

@@ -1,6 +1,9 @@
 package router
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import (
+	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
 
 func (r *BirthdayRouter) DailyChecker() {
 
@@ -9,7 +12,7 @@ func (r *BirthdayRouter) DailyChecker() {
 		if err != nil {
 			for _, response := range responses {
 				for _, chat := range response.ChatIDs {
-					message := tgbotapi.NewMessage(chat, "Не получилось найти никакую информацию о пользователе")
+					message := tgbotapi.NewMessage(chat, fmt.Sprintf("Не получилось найти никакую информацию о пользователе %s", response.Username))
 					r.bot.Send(message)
 				}
 			}

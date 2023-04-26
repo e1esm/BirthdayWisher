@@ -34,7 +34,7 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 		return new(emptypb.Empty), err
 	}
 	dateInMoscow := date.In(localization)
-	user := model.NewUser(req.UserID, dateInMoscow, []model.Chat{*chat})
+	user := model.NewUser(req.UserID, dateInMoscow, []model.Chat{*chat}, req.Username)
 	s.userService.SaveUser(user)
 	return new(emptypb.Empty), nil
 }

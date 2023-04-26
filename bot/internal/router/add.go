@@ -20,7 +20,7 @@ func (r *BirthdayRouter) add(message tgbotapi.Message) {
 	splittedMessage := strings.Split(message.CommandArguments(), ".")
 	date := fmt.Sprintf("1970-%s-%s", splittedMessage[1], splittedMessage[0])
 	chat := bridge.NewChat(message.Chat.ID)
-	user := bridge.NewUser(message.From.ID, date, *chat)
+	user := bridge.NewUser(message.From.ID, date, *chat, message.From.FirstName+message.From.LastName)
 
 	err := r.bridgeService.SaveUser(*user)
 	log.Println(user.CurrentChat)

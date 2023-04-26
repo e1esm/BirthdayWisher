@@ -13,11 +13,12 @@ service CongratulationService{
 
 message UserRequest{
   int64 userID = 1;
-  string date = 2;
+  string username = 2;
+  string date = 3;
   message ChatRequest{
     int64 chatID = 1;
   }
-  ChatRequest chatRequest = 3;
+  ChatRequest chatRequest = 4;
 }
 
 

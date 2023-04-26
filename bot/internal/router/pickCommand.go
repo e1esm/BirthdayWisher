@@ -7,7 +7,7 @@ func (r *BirthdayRouter) PickCommand(update tgbotapi.Update) {
 	case "add":
 		r.add(*update.Message)
 	case "addFull":
-		r.add(*update.Message)
+		r.addFull(*update.Message)
 	case "change":
 		r.change(*update.Message)
 	case "list":

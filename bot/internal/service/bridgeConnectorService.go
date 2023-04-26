@@ -4,6 +4,8 @@ import (
 	"BirthdayWisherBot/internal/models/bridge"
 	"context"
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"io"
 	"log"
 )
 
@@ -28,4 +30,26 @@ func (s *BridgeConnectorService) SaveUser(user bridge.User) error {
 		return err
 	}
 	return nil
+}
+
+func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationResponse, error) {
+	messages := make([]*gen_proto.CongratulationResponse, 0, 10)
+	message, err := s.client.GetDataForCongratulations(context.Background(), new(emptypb.Empty))
+	if err != nil {
+		log.Println("Couldn't have listened to server's stream")
+		return messages, err
+	}
+	for {
+		retrievedMessage, err := message.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Println("Couldn't have retrieved message from protobuf")
+			return messages, nil
+		}
+		messages = append(messages, retrievedMessage)
+	}
+
+	return messages, nil
 }

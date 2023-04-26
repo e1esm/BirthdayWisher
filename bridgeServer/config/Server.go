@@ -6,18 +6,21 @@ import (
 	"context"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
+	"sync"
 	"time"
 )
 
 type Server struct {
 	userService *service.UserService
 	chatService *service.ChatService
+	gptService  *service.GPTService
 	bot_to_server_proto.CongratulationServiceServer
 	config *Config
 }
 
-func NewServer(userService *service.UserService, chatService *service.ChatService, config *Config) *Server {
-	return &Server{userService: userService, chatService: chatService, config: config}
+func NewServer(userService *service.UserService, chatService *service.ChatService, gptService *service.GPTService, config *Config) *Server {
+	return &Server{userService: userService, chatService: chatService, gptService: gptService, config: config}
 }
 
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {
@@ -38,15 +41,22 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 
 func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_server_proto.CongratulationService_GetDataForCongratulationsServer) error {
 	users := s.userService.GetUsersWithBirthdayToday()
+	wg := new(sync.WaitGroup)
 	for _, user := range users {
-		chats := make([]*bot_to_server_proto.ChatRequest, 0)
-		for _, chat := range user.CurrentChat {
-			chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ChatId})
-		}
-		res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats}
-		if err := server.Send(res); err != nil {
-			return err
-		}
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, user model.User) {
+			chats := make([]*bot_to_server_proto.ChatRequest, 0)
+			for _, chat := range user.CurrentChat {
+				chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ChatId})
+			}
+			congratulationSentence := s.gptService.GetCongratulation(user.Username)
+			res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats, CongratulationSentence: congratulationSentence}
+			if err := server.Send(res); err != nil {
+				log.Println(err)
+			}
+			wg.Done()
+		}(wg, user)
 	}
+	wg.Wait()
 	return nil
 }

@@ -30,7 +30,8 @@ func main() {
 	repositories := repository.NewRepositories(repository.NewUserRepository(cfg.DB), repository.NewChatRepository(cfg.DB))
 	chatService := service.NewChatService(repositories)
 	userService := service.NewUserService(repositories)
-	serverImpl := config.NewServer(userService, chatService, cfg)
+	gptService := service.NewGPTService(cfg.Client)
+	serverImpl := config.NewServer(userService, chatService, gptService, cfg)
 
 	port := os.Getenv("GRPC_PORT")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
@@ -43,9 +44,8 @@ func main() {
 	if err = grpcServer.Serve(server); err != nil {
 		log.Fatalf("%s", err)
 	}
-	/*
-		gptService := service.NewGPTService(cfg.Client)
-		for i := 0; i < 10; i++ {
+
+	/*	for i := 0; i < 10; i++ {
 			gptService.GetCongratulation("egor")
 		}
 

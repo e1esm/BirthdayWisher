@@ -9,18 +9,15 @@ import (
 	"time"
 )
 
-const (
-	layoutISO = "1970-01-01"
-)
-
 type Server struct {
 	userService *service.UserService
 	chatService *service.ChatService
 	bot_to_server_proto.CongratulationServiceServer
+	config *Config
 }
 
-func NewServer(userService *service.UserService, chatService *service.ChatService) *Server {
-	return &Server{userService: userService, chatService: chatService}
+func NewServer(userService *service.UserService, chatService *service.ChatService, config *Config) *Server {
+	return &Server{userService: userService, chatService: chatService, config: config}
 }
 
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {
@@ -37,4 +34,19 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 	user := model.NewUser(req.UserID, dateInMoscow, []model.Chat{*chat}, req.Username)
 	s.userService.SaveUser(user)
 	return new(emptypb.Empty), nil
+}
+
+func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_server_proto.CongratulationService_GetDataForCongratulationsServer) error {
+	users := s.userService.GetUsersWithBirthdayToday()
+	for _, user := range users {
+		chats := make([]*bot_to_server_proto.ChatRequest, 0)
+		for _, chat := range user.CurrentChat {
+			chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ChatId})
+		}
+		res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats}
+		if err := server.Send(res); err != nil {
+			return err
+		}
+	}
+	return nil
 }

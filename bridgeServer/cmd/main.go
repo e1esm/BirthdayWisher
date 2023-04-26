@@ -30,7 +30,7 @@ func main() {
 	repositories := repository.NewRepositories(repository.NewUserRepository(cfg.DB), repository.NewChatRepository(cfg.DB))
 	chatService := service.NewChatService(repositories)
 	userService := service.NewUserService(repositories)
-	serverImpl := config.NewServer(userService, chatService)
+	serverImpl := config.NewServer(userService, chatService, cfg)
 
 	port := os.Getenv("GRPC_PORT")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")

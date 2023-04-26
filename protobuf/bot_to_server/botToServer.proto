@@ -15,15 +15,15 @@ message UserRequest{
   int64 userID = 1;
   string username = 2;
   string date = 3;
-  message ChatRequest{
-    int64 chatID = 1;
-  }
   ChatRequest chatRequest = 4;
+}
+message ChatRequest{
+  int64 chatID = 1;
 }
 
 
 message CongratulationResponse{
-  repeated int64 chatIDs= 1;
+  repeated ChatRequest chatIDs= 1;
   string username = 2;
   int64 userID = 3;
   string congratulationSentence = 4;

@@ -16,3 +16,7 @@ func NewUserService(repositories *repository.Repositories) *UserService {
 func (s *UserService) SaveUser(user *model.User) {
 	s.repositories.UserRepository.SaveUser(user)
 }
+
+func (s *UserService) GetUsersWithBirthdayToday() []model.User {
+	return s.repositories.UserRepository.FindUsers()
+}

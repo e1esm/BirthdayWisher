@@ -42,15 +42,9 @@ func main() {
 	client := gen_proto.NewCongratulationServiceClient(conn)
 	scheduler := gocron.NewScheduler(time.UTC)
 	router := route.NewBirthdayRouter(bot, *service.NewBridgeConnectorService(client), scheduler)
-
-	scheduler.Every(5).Second().Do(router.DailyBirthdayChecker)
+	scheduler.Every(1).Day().At("00:00").Do(router.DailyBirthdayChecker)
 	router.Scheduler.StartAsync()
 	for update := range updates {
-
 		router.HandleUpdate(update)
 	}
-}
-
-func sayHello() {
-	log.Println("hey")
 }

@@ -26,6 +26,6 @@ func (r *UserRepository) SaveUser(user *model.User) {
 
 func (r *UserRepository) FindUsers() []model.User {
 	users := make([]model.User, 0, 10)
-	r.db.Raw("select * from users where extract(month from date) = extract(month from current_date) and extract(day from date) = extract(day from current_date)").Scan(&users)
+	r.db.Preload("CurrentChat").Find(&users).Where("extract(month from date) = extract(month from current_date) and extract(day from date) = extract(day from current_date)")
 	return users
 }

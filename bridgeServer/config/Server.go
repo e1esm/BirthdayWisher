@@ -52,10 +52,11 @@ func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_ser
 			congratulationSentence := s.gptService.GetCongratulation(user.Username)
 			res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats, CongratulationSentence: congratulationSentence}
 			if err := server.Send(res); err != nil {
-				log.Println(err)
+				log.Println("Couldn't have sent a message.")
 			}
 			wg.Done()
 		}(wg, user)
+		time.Sleep(time.Second * 21)
 	}
 	wg.Wait()
 	return nil

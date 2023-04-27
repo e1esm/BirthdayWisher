@@ -49,10 +49,9 @@ func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationRe
 		}
 		if err != nil {
 			log.Println("Couldn't have retrieved message from protobuf")
-			return nil, err
+			return messages, err
 		}
 		messages = append(messages, retrievedMessage)
 	}
-	log.Println(messages)
 	return messages, nil
 }

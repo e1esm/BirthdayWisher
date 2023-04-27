@@ -23,7 +23,7 @@ message ChatRequest{
 }
 
 message ChatBirthdaysResponse{
-  ChatRequest chatID = 1;
+  int64 chatID = 1;
   message BirthdaysResponse{
     string username = 1;
     string birthdayDate = 2;

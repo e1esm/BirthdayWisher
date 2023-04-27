@@ -13,14 +13,13 @@ import (
 
 type Server struct {
 	userService *service.UserService
-	chatService *service.ChatService
 	gptService  *service.GPTService
 	bot_to_server_proto.CongratulationServiceServer
 	config *Config
 }
 
-func NewServer(userService *service.UserService, chatService *service.ChatService, gptService *service.GPTService, config *Config) *Server {
-	return &Server{userService: userService, chatService: chatService, gptService: gptService, config: config}
+func NewServer(userService *service.UserService, gptService *service.GPTService, config *Config) *Server {
+	return &Server{userService: userService, gptService: gptService, config: config}
 }
 
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {
@@ -60,4 +59,8 @@ func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_ser
 	}
 	wg.Wait()
 	return nil
+}
+
+func (s *Server) GetSoonBirthdays(ctx context.Context, req *bot_to_server_proto.ChatRequest) (*bot_to_server_proto.ChatBirthdaysResponse, error) {
+	return s.userService.GetUsersWithBirthdaySoon(req.ChatID), nil
 }

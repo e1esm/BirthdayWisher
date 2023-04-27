@@ -3,6 +3,7 @@ package service
 import (
 	"BirthdayWisherBot/internal/models/bridge"
 	"context"
+	"fmt"
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"io"
@@ -33,7 +34,6 @@ func (s *BridgeConnectorService) SaveUser(user bridge.User) error {
 }
 
 func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationResponse, error) {
-	log.Println("Entered daily retriever")
 	messages := make([]*gen_proto.CongratulationResponse, 0, 10)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -54,4 +54,14 @@ func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationRe
 		messages = append(messages, retrievedMessage)
 	}
 	return messages, nil
+}
+
+func (s *BridgeConnectorService) GetSoonBirthdays(chatID int64) (*gen_proto.ChatBirthdaysResponse, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	chatBirthdaysInfo, err := s.client.GetSoonBirthdays(ctx, &gen_proto.ChatRequest{ChatID: chatID})
+	if err != nil {
+		return nil, fmt.Errorf("couldn't have gotten soon birthday list: %s", err)
+	}
+	return chatBirthdaysInfo, nil
 }

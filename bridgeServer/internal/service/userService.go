@@ -3,20 +3,25 @@ package service
 import (
 	"bridgeServer/internal/model"
 	"bridgeServer/internal/repository"
+	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 )
 
 type UserService struct {
-	repositories *repository.Repositories
+	userRepository *repository.UserRepository
 }
 
-func NewUserService(repositories *repository.Repositories) *UserService {
-	return &UserService{repositories: repositories}
+func NewUserService(userRepository *repository.UserRepository) *UserService {
+	return &UserService{userRepository: userRepository}
 }
 
 func (s *UserService) SaveUser(user *model.User) {
-	s.repositories.UserRepository.SaveUser(user)
+	s.userRepository.SaveUser(user)
 }
 
 func (s *UserService) GetUsersWithBirthdayToday() []model.User {
-	return s.repositories.UserRepository.FindUsers()
+	return s.userRepository.FindUsers()
+}
+
+func (s *UserService) GetUsersWithBirthdaySoon(chatId int64) *bot_to_server_proto.ChatBirthdaysResponse {
+	return s.userRepository.SoonBirthdaysOfUsers(chatId)
 }

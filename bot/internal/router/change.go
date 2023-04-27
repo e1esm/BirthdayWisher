@@ -8,7 +8,8 @@ import (
 func (r *BirthdayRouter) change(message tgbotapi.Message) {
 	splittedMessage := strings.Split(message.CommandArguments(), ".")
 	if len(splittedMessage) == 3 {
-		r.addFull(message)
+		r.setFull(message)
+		return
 	}
-	r.add(message)
+	r.set(message)
 }

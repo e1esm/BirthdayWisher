@@ -9,27 +9,26 @@ import (
 	"strings"
 )
 
-func (r *BirthdayRouter) addFull(message tgbotapi.Message) {
-	regex := regexp.MustCompile("^\\s*(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})\\s*$")
+func (r *BirthdayRouter) set(message tgbotapi.Message) {
+	regex := regexp.MustCompile("^(?:0[1-9]|[12][0-9]|3[01]).(?:0[1-9]|1[012])$")
 	if !regex.MatchString(message.CommandArguments()) {
-		log.Println(message.CommandArguments())
-		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Invalid date: %v", message.CommandArguments()))
+		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Invalid date: %s", message.CommandArguments()))
 		r.bot.Send(msg)
 		return
 	}
 	splittedMessage := strings.Split(message.CommandArguments(), ".")
-	date := fmt.Sprintf("%s-%s-%s", splittedMessage[2], splittedMessage[1], splittedMessage[0])
+	date := fmt.Sprintf("1970-%s-%s", splittedMessage[1], splittedMessage[0])
 	chat := bridge.NewChat(message.Chat.ID)
 	user := bridge.NewUser(message.From.ID, date, *chat, message.From.FirstName+message.From.LastName)
 
 	err := r.ConnectorService.SaveUser(*user)
+	log.Println(user.CurrentChat)
+	log.Println(message.Chat.ID)
 	if err != nil {
 		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не получилось сохранить данные %s в БД", message.From.FirstName))
 		r.bot.Send(msg)
 		return
 	}
-
-	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Данные %s были добавлены в БД", message.From.FirstName))
+	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Данные %s были внесены в БД", message.From.FirstName))
 	r.bot.Send(msg)
-
 }

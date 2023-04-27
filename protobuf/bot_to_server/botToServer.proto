@@ -9,6 +9,7 @@ package bridgeServer_service;
 service CongratulationService{
   rpc SaveUserInfo(UserRequest) returns (google.protobuf.Empty);
   rpc GetDataForCongratulations(google.protobuf.Empty) returns (stream CongratulationResponse);
+  rpc GetSoonBirthdays(ChatRequest) returns (ChatBirthdaysResponse);
 }
 
 message UserRequest{
@@ -19,6 +20,15 @@ message UserRequest{
 }
 message ChatRequest{
   int64 chatID = 1;
+}
+
+message ChatBirthdaysResponse{
+  ChatRequest chatID = 1;
+  message BirthdaysResponse{
+    string username = 1;
+    string birthdayDate = 2;
+  }
+  repeated BirthdaysResponse soonBirthdays = 2;
 }
 
 

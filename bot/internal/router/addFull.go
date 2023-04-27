@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-// TODO add changing bool argument for call from change/pickCommand
 func (r *BirthdayRouter) addFull(message tgbotapi.Message) {
 	regex := regexp.MustCompile("^\\s*(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})\\s*$")
 	if !regex.MatchString(message.CommandArguments()) {

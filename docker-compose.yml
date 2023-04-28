@@ -8,6 +8,7 @@ services:
     env_file:
       - .env
     environment:
+      PGTZ: 'GMT+3'
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}

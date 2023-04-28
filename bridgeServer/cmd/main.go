@@ -71,13 +71,13 @@ func dbConfiguration() *gorm.DB {
 			if err != nil {
 				log.Fatal(err)
 			}
+			log.Println(time.Now().In(localization))
 			return time.Now().In(localization)
 		},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	//db.Exec("SET TIME ZONE 'Europe/Moscow'")
 	err = db.AutoMigrate(model.User{}, model.Chat{})
 	if err != nil {
 		log.Fatal(err)

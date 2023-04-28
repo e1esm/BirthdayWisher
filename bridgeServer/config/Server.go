@@ -46,7 +46,7 @@ func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_ser
 		go func(wg *sync.WaitGroup, user model.User) {
 			chats := make([]*bot_to_server_proto.ChatRequest, 0)
 			for _, chat := range user.CurrentChat {
-				chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ChatId})
+				chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ID})
 			}
 			congratulationSentence := s.gptService.GetCongratulation(user.Username)
 			res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats, CongratulationSentence: congratulationSentence}

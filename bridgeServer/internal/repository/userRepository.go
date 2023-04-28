@@ -21,7 +21,7 @@ func (r *UserRepository) SaveUser(user *model.User) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		r.db.Debug().Create(user)
 	} else {
-		r.db.Debug().Save(user)
+		r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&user)
 	}
 }
 

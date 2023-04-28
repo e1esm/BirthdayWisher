@@ -40,9 +40,17 @@ func main() {
 	defer conn.Close()
 
 	client := gen_proto.NewCongratulationServiceClient(conn)
-	scheduler := gocron.NewScheduler(time.UTC)
+	location, err := time.LoadLocation("Europe/Moscow")
+	var scheduler *gocron.Scheduler
+	if err != nil {
+		log.Println("UTC Time")
+		scheduler = gocron.NewScheduler(time.UTC)
+	} else {
+		log.Println("Moscow time")
+		scheduler = gocron.NewScheduler(location)
+	}
 	router := route.NewBirthdayRouter(bot, *service.NewBridgeConnectorService(client), scheduler)
-	scheduler.Every(1).Day().At("00:00").Do(router.DailyBirthdayChecker)
+	scheduler.Every(1).Day().At("11:21").Do(router.DailyBirthdayChecker)
 	router.Scheduler.StartAsync()
 	for update := range updates {
 		router.HandleUpdate(update)

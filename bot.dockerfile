@@ -9,6 +9,8 @@ COPY bot/ bot/
 COPY .env bot.dockerfile /app/
 COPY protobuf/bot_to_server/gen_proto/ protobuf/bot_to_server/gen_proto/
 
+
+ENV TZ="Europe/Moscow"
 ENV GOBIN /go/bin
 
 WORKDIR /app/bot

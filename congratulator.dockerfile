@@ -8,6 +8,8 @@ COPY congratulationsGenerator/ CongratulationsGenerator/
 COPY protobuf/bridge_to_API/gen_proto/ protobuf/bridge_to_API/gen_proto/
 COPY .env congratulator.dockerfile /app/
 
+
+ENV TZ="Europe/Moscow"
 ENV GOBIN /go/bin
 
 WORKDIR /app/CongratulationsGenerator

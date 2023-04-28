@@ -19,9 +19,9 @@ func (r *UserRepository) SaveUser(user *model.User) {
 	var retrievedUser model.User
 	err := r.db.First(&retrievedUser, user.ID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		r.db.Create(user)
+		r.db.Debug().Create(user)
 	} else {
-		r.db.Save(user)
+		r.db.Debug().Save(user)
 	}
 }
 

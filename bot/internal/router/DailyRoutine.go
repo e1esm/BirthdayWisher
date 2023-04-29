@@ -14,7 +14,8 @@ func (r *BirthdayRouter) DailyBirthdayChecker() {
 	for _, response := range responses {
 		for _, chat := range response.ChatIDs {
 			if err == nil {
-				message := tgbotapi.NewMessage(chat.ChatID, response.CongratulationSentence)
+				message := tgbotapi.NewMessage(chat.ChatID, fmt.Sprintf("[%s](tg://user?id=%d),\n%s", response.Username, response.UserID, response.CongratulationSentence))
+				message.ParseMode = "markdown"
 				r.bot.Send(message)
 			} else {
 				message := tgbotapi.NewMessage(chat.ChatID, fmt.Sprintf("Не получилось найти никакую информацию о пользователе %s", response.Username))

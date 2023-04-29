@@ -42,5 +42,3 @@ func (s *OpenAIService) QueryFromAI(name string) string {
 	}
 	return resp.Choices[0].Message.Content
 }
-
-//(tg://user?id=?")

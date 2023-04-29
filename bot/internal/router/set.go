@@ -2,9 +2,10 @@ package router
 
 import (
 	"BirthdayWisherBot/internal/models/bridge"
+	"BirthdayWisherBot/utils"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
+	"go.uber.org/zap"
 	"regexp"
 	"strings"
 )
@@ -22,13 +23,13 @@ func (r *BirthdayRouter) set(message tgbotapi.Message) {
 	user := bridge.NewUser(message.From.ID, date, *chat, message.From.FirstName+message.From.LastName)
 
 	err := r.ConnectorService.SaveUser(*user)
-	log.Println(user.CurrentChat)
-	log.Println(message.Chat.ID)
 	if err != nil {
+		utils.Logger.Error("Failed to save user's info into DB", zap.String("user", user.Username))
 		msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не получилось сохранить данные %s в БД", message.From.FirstName))
 		r.bot.Send(msg)
 		return
 	}
 	msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Данные %s были внесены в БД", message.From.FirstName))
+	utils.Logger.Info("Successfully added user's info into DB", zap.String("user", user.Username))
 	r.bot.Send(msg)
 }

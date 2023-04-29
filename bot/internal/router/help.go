@@ -2,7 +2,6 @@ package router
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
 	"reflect"
 	"strings"
 )
@@ -16,7 +15,6 @@ func (r *BirthdayRouter) help(message tgbotapi.Message) {
 		strBuilder.WriteString("\n")
 	}
 	methods = strBuilder.String()
-	log.Println(methods)
 	msg := tgbotapi.NewMessage(message.Chat.ID, methods)
 	r.bot.Send(msg)
 }

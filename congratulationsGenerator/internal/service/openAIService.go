@@ -1,11 +1,12 @@
 package service
 
 import (
+	"congratulationsGenerator/utils"
 	"context"
 	"fmt"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/sashabaranov/go-openai"
-	"log"
+	"go.uber.org/zap"
 	"strings"
 )
 
@@ -38,7 +39,8 @@ func (s *OpenAIService) QueryFromAI(name string) string {
 		},
 	)
 	if err != nil {
-		log.Fatalf("ChatCompletion error: %v", err)
+		utils.Logger.Error("Couldn't have gotten response from ChatGPT", zap.String("error", err.Error()))
 	}
+	utils.Logger.Info("ChatGPT response", zap.String("response", resp.Choices[0].Message.Content))
 	return resp.Choices[0].Message.Content
 }

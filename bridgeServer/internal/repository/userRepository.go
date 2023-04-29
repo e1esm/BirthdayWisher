@@ -2,8 +2,10 @@ package repository
 
 import (
 	"bridgeServer/internal/model"
+	"bridgeServer/utils"
 	"errors"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -19,8 +21,10 @@ func (r *UserRepository) SaveUser(user *model.User) {
 	var retrievedUser model.User
 	err := r.db.First(&retrievedUser, user.ID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		r.db.Debug().Create(user)
+		utils.Logger.Info("Created user", zap.String("user", user.Username))
+		r.db.Create(user)
 	} else {
+		utils.Logger.Info("Updated user", zap.String("user", user.Username))
 		r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&user)
 	}
 }
@@ -33,7 +37,7 @@ func (r *UserRepository) FindUsers() []model.User {
 
 func (r *UserRepository) SoonBirthdaysOfUsers(chatId int64) *bot_to_server_proto.ChatBirthdaysResponse {
 	users := make([]model.User, 0, 10)
-	r.db.Debug().Preload("CurrentChat", "chat_id = ?", chatId).Where("extract(month from date) = extract(month from current_date) and extract(day from date) > extract(day from current_date)").Find(&users)
+	r.db.Preload("CurrentChat", "chat_id = ?", chatId).Where("extract(month from date) = extract(month from current_date) and extract(day from date) > extract(day from current_date)").Find(&users)
 	return chatBirthdaysResponseBuilder(users, chatId)
 
 }

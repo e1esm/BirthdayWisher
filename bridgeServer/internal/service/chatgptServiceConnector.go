@@ -1,9 +1,10 @@
 package service
 
 import (
+	"bridgeServer/utils"
 	"context"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
-	"log"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -20,7 +21,8 @@ func (s *GPTService) GetCongratulation(name string) string {
 	defer cancel()
 	res, err := s.client.QueryForCongratulation(ctx, &gen_proto.CongratulationRequest{Name: name})
 	if err != nil {
-		log.Fatalf("Couldn't have gotten result from querying congratulation: %s", err)
+		utils.Logger.Error("Didn't get result from querying for congratulations", zap.String("error", err.Error()))
+		return ""
 	}
 	return res.CongratulationSentence
 }

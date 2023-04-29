@@ -3,8 +3,10 @@ package config
 import (
 	"bridgeServer/internal/model"
 	"bridgeServer/internal/service"
+	"bridgeServer/utils"
 	"context"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"sync"
@@ -26,10 +28,12 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 	chat := model.NewChat(req.ChatRequest.ChatID, req.ChatRequest.ChatID)
 	date, err := time.Parse(time.DateOnly, req.Date)
 	if err != nil {
+		utils.Logger.Error("Time parse error", zap.String("error", err.Error()))
 		return new(emptypb.Empty), err
 	}
 	localization, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
+		utils.Logger.Error("Localization loading error", zap.String("error", err.Error()))
 		return new(emptypb.Empty), err
 	}
 	dateInMoscow := date.In(localization)
@@ -51,6 +55,7 @@ func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_ser
 			congratulationSentence := s.gptService.GetCongratulation(user.Username)
 			res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats, CongratulationSentence: congratulationSentence}
 			if err := server.Send(res); err != nil {
+				utils.Logger.Error("Couldn't have sent a message to user", zap.String("user", res.Username))
 				log.Println("Couldn't have sent a message.")
 			}
 			wg.Done()

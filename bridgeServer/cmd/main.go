@@ -5,10 +5,12 @@ import (
 	"bridgeServer/internal/model"
 	"bridgeServer/internal/repository"
 	"bridgeServer/internal/service"
+	"bridgeServer/utils"
 	"fmt"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
@@ -20,6 +22,7 @@ import (
 )
 
 func main() {
+	utils.InitLogger()
 	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatalf("Couldn't have opened env file: %v", err)
@@ -36,12 +39,12 @@ func main() {
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
 	server, err := net.Listen("tcp", address+port)
 	if err != nil {
-		log.Fatalf("%s", err)
+		utils.Logger.Fatal("Can't start listening to this address", zap.String("address", address+port))
 	}
 	grpcServer := grpc.NewServer()
 	bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, serverImpl)
 	if err = grpcServer.Serve(server); err != nil {
-		log.Fatalf("%s", err)
+		utils.Logger.Fatal("Can't start the server", zap.String("error", err.Error()))
 	}
 
 }
@@ -51,7 +54,7 @@ func GRPCClientConfiguration() gen_proto.CongratulationServiceClient {
 	name := os.Getenv("AI_CALLER_CONTAINER_NAME")
 	conn, err := grpc.Dial(name+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatal(err)
+		utils.Logger.Fatal("Can't connect to another container in order to start communication", zap.String("error", err.Error()))
 	}
 	client := gen_proto.NewCongratulationServiceClient(conn)
 
@@ -69,18 +72,17 @@ func dbConfiguration() *gorm.DB {
 		NowFunc: func() time.Time {
 			localization, err := time.LoadLocation("Europe/Moscow")
 			if err != nil {
-				log.Fatal(err)
+				utils.Logger.Fatal("Invalid time zone", zap.String("time zone", localization.String()))
 			}
-			log.Println(time.Now().In(localization))
 			return time.Now().In(localization)
 		},
 	})
 	if err != nil {
-		log.Fatal(err)
+		utils.Logger.Fatal("Can't open connection with the database", zap.String("error", err.Error()))
 	}
 	err = db.AutoMigrate(model.User{}, model.Chat{})
 	if err != nil {
-		log.Fatal(err)
+		utils.Logger.Fatal("Can't complete db migration", zap.String("error", err.Error()))
 	}
 	return db
 }

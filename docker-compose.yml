@@ -1,4 +1,13 @@
 services:
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "19090:9090"
+    networks:
+      mynet:
+        ipv4_address: 173.20.0.6
   postgres:
     build:
       context: .

@@ -28,6 +28,7 @@ func main() {
 	token := os.Getenv("AI_TOKEN")
 	port := os.Getenv("GRPC_PORT")
 	name := os.Getenv("AI_CALLER_CONTAINER_NAME")
+	metricsPort := os.Getenv("METRICS_PORT")
 	client := openai.NewClient(token)
 	if err != nil {
 		utils.Logger.Fatal("Address can't be listened", zap.String("error", err.Error()))
@@ -50,7 +51,7 @@ func main() {
 	}, func(err error) {
 		grpcServer.GracefulStop()
 	})
-	httpServer := &http.Server{Addr: name + ":8099"}
+	httpServer := &http.Server{Addr: name + metricsPort}
 	group.Add(func() error {
 		m := http.NewServeMux()
 		m.Handle("/metrics", promhttp.Handler())

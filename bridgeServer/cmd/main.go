@@ -6,10 +6,14 @@ import (
 	"bridgeServer/internal/repository"
 	"bridgeServer/internal/service"
 	"bridgeServer/utils"
+	"context"
 	"fmt"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/joho/godotenv"
+	"github.com/oklog/run"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -17,7 +21,9 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net"
+	"net/http"
 	"os"
+	"syscall"
 	"time"
 )
 
@@ -37,16 +43,53 @@ func main() {
 
 	port := os.Getenv("GRPC_PORT")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
-	server, err := net.Listen("tcp", address+port)
-	if err != nil {
-		utils.Logger.Fatal("Can't start listening to this address", zap.String("address", address+port))
-	}
-	grpcServer := grpc.NewServer()
+	metricsPort := os.Getenv("METRICS_PORT")
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
+		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor))
 	bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, serverImpl)
-	if err = grpcServer.Serve(server); err != nil {
-		utils.Logger.Fatal("Can't start the server", zap.String("error", err.Error()))
+	grpc_prometheus.Register(grpcServer)
+
+	group := run.Group{}
+	group.Add(func() error {
+		server, err := net.Listen("tcp", address+port)
+		if err != nil {
+			return fmt.Errorf("Couldn't have started grpc server")
+		}
+		return grpcServer.Serve(server)
+	}, func(err error) {
+		grpcServer.GracefulStop()
+	})
+
+	httpServer := &http.Server{Addr: address + metricsPort}
+	group.Add(func() error {
+		m := http.NewServeMux()
+		m.Handle("/metrics", promhttp.Handler())
+		httpServer.Handler = m
+		return httpServer.ListenAndServe()
+	}, func(err error) {
+		if err := httpServer.Close(); err != nil {
+			utils.Logger.Fatal("Error while stopping the server", zap.String("msg", "Failed to stop the web server"), zap.String("error", err.Error()))
+		}
+	})
+
+	group.Add(run.SignalHandler(context.Background(), syscall.SIGINT, syscall.SIGTERM))
+	if err = group.Run(); err != nil {
+		utils.Logger.Fatal("Error while running a group", zap.String("error", err.Error()))
 	}
 
+	/*
+		server, err := net.Listen("tcp", address+port)
+		if err != nil {
+			utils.Logger.Fatal("Can't start listening to this address", zap.String("address", address+port))
+		}
+		grpcServer := grpc.NewServer()
+		bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, serverImpl)
+		if err = grpcServer.Serve(server); err != nil {
+			utils.Logger.Fatal("Can't start the server", zap.String("error", err.Error()))
+		}
+
+	*/
 }
 
 func GRPCClientConfiguration() gen_proto.CongratulationServiceClient {

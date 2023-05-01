@@ -12,6 +12,7 @@ services:
         ipv4_address: 173.20.0.6
     depends_on:
       - aicaller
+      - bridge_server
   postgres:
     build:
       context: .

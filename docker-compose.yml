@@ -13,6 +13,17 @@ services:
     depends_on:
       - aicaller
       - bridge_server
+  pdf_generator:
+    container_name: pdf_generator
+    build:
+      context: .
+      dockerfile: pdfGenerator.dockerfile
+    restart: always
+    depends_on:
+      - bridge_server
+    networks:
+      mynet:
+        ipv4_address: 173.20.0.7
   postgres:
     build:
       context: .

@@ -1,5 +1,19 @@
 services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    build:
+      context: .
+      dockerfile: grafana.dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      mynet:
+        ipv4_address: 173.20.0.8
   prometheus:
+    container_name: prometheus
     image: prom/prometheus:latest
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
@@ -96,6 +110,7 @@ services:
         ipv4_address: 173.20.0.5
 volumes:
   dbdata:
+  grafana_data:
 networks:
   mynet:
     driver: "bridge"

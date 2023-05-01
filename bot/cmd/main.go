@@ -7,7 +7,6 @@ import (
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -36,7 +35,7 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
-	conn, err := grpc.Dial(address+port, grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(address+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.Logger.Fatal(err.Error(), zap.String("address", address+port))
 	}

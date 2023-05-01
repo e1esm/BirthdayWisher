@@ -39,6 +39,7 @@ func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationRe
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	message, err := s.client.GetDataForCongratulations(ctx, new(emptypb.Empty))
+	
 	if err != nil {
 		utils.Logger.Error("Failed while receiving protobuf message's data from daily birthdays checker")
 		return nil, err
@@ -56,7 +57,9 @@ func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationRe
 func (s *BridgeConnectorService) GetSoonBirthdays(chatID int64) (*gen_proto.ChatBirthdaysResponse, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	chatBirthdaysInfo, err := s.client.GetSoonBirthdays(ctx, &gen_proto.ChatRequest{ChatID: chatID})
+
 	if err != nil {
 		utils.Logger.Error("Error while checking today's birthdays of the chat's users", zap.Int64("chatID", chatID))
 		return nil, fmt.Errorf("couldn't have gotten soon birthday list: %s", err)

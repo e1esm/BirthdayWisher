@@ -25,6 +25,7 @@ func NewServer(userService *service.UserService, gptService *service.GPTService,
 }
 
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {
+	start := time.Now()
 	chat := model.NewChat(req.ChatRequest.ChatID, req.ChatRequest.ChatID)
 	date, err := time.Parse(time.DateOnly, req.Date)
 	if err != nil {
@@ -39,10 +40,13 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 	dateInMoscow := date.In(localization)
 	user := model.NewUser(req.UserID, dateInMoscow, []model.Chat{*chat}, req.Username)
 	s.userService.SaveUser(user)
+	elapsed := time.Since(start).Seconds()
+	utils.GrpcRequestDuration.Observe(elapsed)
 	return new(emptypb.Empty), nil
 }
 
 func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_server_proto.CongratulationService_GetDataForCongratulationsServer) error {
+	start := time.Now()
 	users := s.userService.GetUsersWithBirthdayToday()
 	wg := new(sync.WaitGroup)
 	for _, user := range users {
@@ -63,9 +67,15 @@ func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_ser
 		time.Sleep(time.Second * 21)
 	}
 	wg.Wait()
+	elapsed := time.Since(start).Seconds()
+	utils.GrpcRequestDuration.Observe(elapsed)
 	return nil
 }
 
 func (s *Server) GetSoonBirthdays(ctx context.Context, req *bot_to_server_proto.ChatRequest) (*bot_to_server_proto.ChatBirthdaysResponse, error) {
-	return s.userService.GetUsersWithBirthdaySoon(req.ChatID), nil
+	start := time.Now()
+	response := s.userService.GetUsersWithBirthdaySoon(req.ChatID)
+	elapsed := time.Since(start).Seconds()
+	utils.GrpcRequestDuration.Observe(elapsed)
+	return response, nil
 }

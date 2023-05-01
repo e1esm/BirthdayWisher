@@ -78,18 +78,6 @@ func main() {
 		utils.Logger.Fatal("Error while running a group", zap.String("error", err.Error()))
 	}
 
-	/*
-		server, err := net.Listen("tcp", address+port)
-		if err != nil {
-			utils.Logger.Fatal("Can't start listening to this address", zap.String("address", address+port))
-		}
-		grpcServer := grpc.NewServer()
-		bot_to_server_proto.RegisterCongratulationServiceServer(grpcServer, serverImpl)
-		if err = grpcServer.Serve(server); err != nil {
-			utils.Logger.Fatal("Can't start the server", zap.String("error", err.Error()))
-		}
-
-	*/
 }
 
 func GRPCClientConfiguration() gen_proto.CongratulationServiceClient {

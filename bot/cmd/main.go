@@ -7,11 +7,11 @@ import (
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 	"os"
 	"time"
 )
@@ -36,8 +36,7 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
-	log.Println(address + port)
-	conn, err := grpc.Dial(address+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(address+port, grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		utils.Logger.Fatal(err.Error(), zap.String("address", address+port))
 	}
@@ -56,6 +55,7 @@ func main() {
 	router := route.NewBirthdayRouter(bot, *service.NewBridgeConnectorService(client), scheduler)
 	scheduler.Every(1).Day().At("00:00").Do(router.DailyBirthdayChecker)
 	router.Scheduler.StartAsync()
+
 	for update := range updates {
 		router.HandleUpdate(update)
 	}

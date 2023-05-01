@@ -54,7 +54,7 @@ func main() {
 	group.Add(func() error {
 		server, err := net.Listen("tcp", address+port)
 		if err != nil {
-			return fmt.Errorf("Couldn't have started grpc server")
+			return fmt.Errorf("couldn't have started grpc server: %s", err.Error())
 		}
 		return grpcServer.Serve(server)
 	}, func(err error) {

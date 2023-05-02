@@ -1,6 +1,9 @@
 package service
 
-import "pdfGenerator/internal/repository"
+import (
+	"log"
+	"pdfGenerator/internal/repository"
+)
 
 type PDFService struct {
 	repository *repository.UserRepository
@@ -11,5 +14,7 @@ func NewPDFService() *PDFService {
 }
 
 func (s *PDFService) GeneratePDF(chatID int64) []byte {
+	users := s.repository.FetchUsersFromChat(chatID)
+	log.Println(users)
 	return []byte{}
 }

@@ -16,5 +16,6 @@ func NewServer() *Server {
 }
 
 func (s *Server) QueryForPDF(ctx context.Context, request *gen_proto.PDFRequest) (*gen_proto.PDFResponse, error) {
+	s.PDFService.GeneratePDF(request.ChatID)
 	return nil, nil
 }

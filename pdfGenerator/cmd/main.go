@@ -57,5 +57,4 @@ func main() {
 	if err := group.Run(); err != nil {
 		utils.Logger.Fatal("Error while running a group", zap.String("err", err.Error()))
 	}
-
 }

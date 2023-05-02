@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
+	"pdfGenerator/internal/models"
 	"pdfGenerator/utils"
 	"time"
 )
@@ -16,6 +17,12 @@ type UserRepository struct {
 
 func NewUserRepository() *UserRepository {
 	return &UserRepository{initDB()}
+}
+
+func (r *UserRepository) FetchUsersFromChat(chatID int64) []models.User {
+	users := make([]models.User, 0, 10)
+	r.DB.Raw("select username, date from users inner join chats on users.id = chats.user_id where chats.id = ?", chatID).Find(&users)
+	return users
 }
 
 func initDB() *gorm.DB {

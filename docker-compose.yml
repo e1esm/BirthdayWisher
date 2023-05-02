@@ -90,6 +90,8 @@ services:
     stdin_open: true
     expose:
       - 8081
+    ports:
+      - "8098:8099"
     networks:
       mynet:
           ipv4_address: 173.20.0.4
@@ -105,6 +107,8 @@ services:
       aicaller:
         condition: service_started
     stdin_open: true
+    ports:
+      - "8099:8099"
     networks:
       mynet:
         ipv4_address: 173.20.0.5

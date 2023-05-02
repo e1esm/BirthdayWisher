@@ -1,7 +1,15 @@
 package service
 
-import "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
+import "pdfGenerator/internal/repository"
 
 type PDFService struct {
-	gen_proto.PDFGenerationServiceServer
+	repository *repository.UserRepository
+}
+
+func NewPDFService() *PDFService {
+	return &PDFService{repository: repository.NewUserRepository()}
+}
+
+func (s *PDFService) GeneratePDF(chatID int64) []byte {
+	return []byte{}
 }

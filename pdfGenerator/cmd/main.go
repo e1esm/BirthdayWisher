@@ -12,7 +12,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"pdfGenerator/internal/service"
+	"pdfGenerator/config"
 	"pdfGenerator/utils"
 	"syscall"
 )
@@ -24,12 +24,12 @@ func main() {
 		utils.Logger.Fatal("Couldn't have opened env file", zap.String("err", err.Error()))
 	}
 	grpcPort := os.Getenv("GRPC_PORT")
-	address := os.Getenv("pdf_generator_container_name")
+	address := os.Getenv("PDF_GENERATOR_CONTAINER_NAME")
 	metricsPort := os.Getenv("METRICS_PORT")
 
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor))
-	gen_proto.RegisterPDFGenerationServiceServer(grpcServer, &service.PDFService{})
+	gen_proto.RegisterPDFGenerationServiceServer(grpcServer, config.NewServer())
 	group := run.Group{}
 
 	group.Add(func() error {

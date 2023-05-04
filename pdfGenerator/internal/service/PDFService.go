@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"pdfGenerator/internal/repository"
 )
 
@@ -14,7 +13,6 @@ func NewPDFService() *PDFService {
 }
 
 func (s *PDFService) GeneratePDF(chatID int64) []byte {
-	users := s.repository.FetchUsersFromChat(chatID)
-	log.Println(users)
+	//users := s.repository.FetchUsersFromChat(chatID)
 	return []byte{}
 }

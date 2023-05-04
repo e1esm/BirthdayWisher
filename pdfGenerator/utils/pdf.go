@@ -5,7 +5,7 @@ import (
 	"github.com/signintech/gopdf"
 	"go.uber.org/zap"
 	"pdfGenerator/internal/models"
-	"pdfGenerator/utils"
+
 	"time"
 )
 
@@ -30,11 +30,11 @@ func reportHeadline() *gopdf.GoPdf {
 	pdf.AddPage()
 	err := pdf.AddTTFFont(regularFont, regularFont+":ttf")
 	if err != nil {
-		utils.Logger.Panic("Couldn't have load the font", zap.String("font", regularFont))
+		Logger.Panic("Couldn't have load the font", zap.String("font", regularFont))
 	}
 	err = pdf.AddTTFFont(boldFont, boldFont+":ttf")
 	if err != nil {
-		utils.Logger.Panic("Couldn't have load the bold font", zap.String("font", boldFont))
+		Logger.Panic("Couldn't have load the bold font", zap.String("font", boldFont))
 	}
 
 	pdf.SetFont(boldFont, "", fontHeaderSize)

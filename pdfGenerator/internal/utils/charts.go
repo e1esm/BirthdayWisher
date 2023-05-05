@@ -238,9 +238,9 @@ func countMonths() map[time.Month]int {
 		}
 		v, ok := monthsCount[time.Month(num)]
 		if ok {
-			monthsCount[time.Month(time.Month(num))] = v + 1
+			monthsCount[time.Month(num)] = v + 1
 		} else {
-			monthsCount[time.Month(time.Month(num))] = 1
+			monthsCount[time.Month(num)] = 1
 		}
 	}
 	return monthsCount

@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"os"
 	"pdfGenerator/config"
-	"pdfGenerator/utils"
+	"pdfGenerator/internal/utils"
 	"syscall"
 )
 

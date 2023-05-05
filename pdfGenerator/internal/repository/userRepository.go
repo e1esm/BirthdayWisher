@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"os"
 	"pdfGenerator/internal/models"
-	"pdfGenerator/utils"
+	"pdfGenerator/internal/utils"
 	"time"
 )
 

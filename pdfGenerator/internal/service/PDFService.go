@@ -2,6 +2,7 @@ package service
 
 import (
 	"pdfGenerator/internal/repository"
+	"pdfGenerator/internal/utils"
 )
 
 type PDFService struct {
@@ -13,6 +14,7 @@ func NewPDFService() *PDFService {
 }
 
 func (s *PDFService) GeneratePDF(chatID int64) []byte {
-	//users := s.repository.FetchUsersFromChat(chatID)
+	users := s.repository.FetchUsersFromChat(chatID)
+	utils.GenerateAllImages(chatID, users)
 	return []byte{}
 }

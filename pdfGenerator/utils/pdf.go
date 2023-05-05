@@ -30,6 +30,7 @@ func reportHeadline() *gopdf.GoPdf {
 	pdf.AddPage()
 	err := pdf.AddTTFFont(regularFont, regularFont+":ttf")
 	if err != nil {
+
 		Logger.Panic("Couldn't have load the font", zap.String("font", regularFont))
 	}
 	err = pdf.AddTTFFont(boldFont, boldFont+":ttf")

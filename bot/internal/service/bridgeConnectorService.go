@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
+	pdf_proto "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"io"
@@ -15,11 +16,12 @@ type ConnectorService interface {
 }
 
 type BridgeConnectorService struct {
-	client gen_proto.CongratulationServiceClient
+	client    gen_proto.CongratulationServiceClient
+	pdfClient pdf_proto.PDFGenerationServiceClient
 }
 
-func NewBridgeConnectorService(client gen_proto.CongratulationServiceClient) *BridgeConnectorService {
-	return &BridgeConnectorService{client: client}
+func NewBridgeConnectorService(client gen_proto.CongratulationServiceClient, pdfClient pdf_proto.PDFGenerationServiceClient) *BridgeConnectorService {
+	return &BridgeConnectorService{client: client, pdfClient: pdfClient}
 }
 
 func (s *BridgeConnectorService) SaveUser(user bridge.User) error {
@@ -39,7 +41,7 @@ func (s *BridgeConnectorService) DailyRetriever() ([]*gen_proto.CongratulationRe
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	message, err := s.client.GetDataForCongratulations(ctx, new(emptypb.Empty))
-	
+
 	if err != nil {
 		utils.Logger.Error("Failed while receiving protobuf message's data from daily birthdays checker")
 		return nil, err
@@ -65,4 +67,13 @@ func (s *BridgeConnectorService) GetSoonBirthdays(chatID int64) (*gen_proto.Chat
 		return nil, fmt.Errorf("couldn't have gotten soon birthday list: %s", err)
 	}
 	return chatBirthdaysInfo, nil
+}
+
+func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (*pdf_proto.PDFRequest, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	_, _ = s.pdfClient.QueryForPDF(ctx, &pdf_proto.PDFRequest{ChatID: chatID})
+
+	return nil, nil
 }

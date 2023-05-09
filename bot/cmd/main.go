@@ -5,6 +5,7 @@ import (
 	"BirthdayWisherBot/internal/service"
 	"BirthdayWisherBot/utils"
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
+	pdf_proto "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
 	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/joho/godotenv"
@@ -42,6 +43,7 @@ func main() {
 	defer conn.Close()
 
 	client := gen_proto.NewCongratulationServiceClient(conn)
+	pdfClient := pdf_proto.NewPDFGenerationServiceClient(conn)
 	location, err := time.LoadLocation("Europe/Moscow")
 	var scheduler *gocron.Scheduler
 	if err != nil {
@@ -51,7 +53,7 @@ func main() {
 		utils.Logger.Info("Time zone of gocron", zap.String("time zone", location.String()))
 		scheduler = gocron.NewScheduler(location)
 	}
-	router := route.NewBirthdayRouter(bot, *service.NewBridgeConnectorService(client), scheduler)
+	router := route.NewBirthdayRouter(bot, *service.NewBridgeConnectorService(client, pdfClient), scheduler)
 	scheduler.Every(1).Day().At("00:00").Do(router.DailyBirthdayChecker)
 	router.Scheduler.StartAsync()
 

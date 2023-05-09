@@ -10,6 +10,7 @@ service CongratulationService{
   rpc SaveUserInfo(UserRequest) returns (google.protobuf.Empty);
   rpc GetDataForCongratulations(google.protobuf.Empty) returns (stream CongratulationResponse);
   rpc GetSoonBirthdays(ChatRequest) returns (ChatBirthdaysResponse);
+  rpc GetStatistics(ChatRequest) returns (PDFResponse);
 }
 
 message UserRequest{
@@ -37,4 +38,9 @@ message CongratulationResponse{
   string username = 2;
   int64 userID = 3;
   string congratulationSentence = 4;
+}
+
+
+message PDFResponse{
+  bytes data = 1;
 }

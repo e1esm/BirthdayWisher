@@ -12,10 +12,9 @@ require (
 	go.uber.org/zap v1.24.0
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
-	github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto v1.0.0
+
 )
 
-replace github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto => ./../protobuf/bridge_to_PDF-Generator/gen_proto
 replace github.com/e1esm/protobuf/bot_to_server/gen_proto => ./../protobuf/bot_to_server/gen_proto
 
 require (

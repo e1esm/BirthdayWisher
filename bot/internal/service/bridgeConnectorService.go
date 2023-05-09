@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
-	pdf_proto "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -17,12 +16,11 @@ type ConnectorService interface {
 }
 
 type BridgeConnectorService struct {
-	client    gen_proto.CongratulationServiceClient
-	pdfClient pdf_proto.PDFGenerationServiceClient
+	client gen_proto.CongratulationServiceClient
 }
 
-func NewBridgeConnectorService(client gen_proto.CongratulationServiceClient, pdfClient pdf_proto.PDFGenerationServiceClient) *BridgeConnectorService {
-	return &BridgeConnectorService{client: client, pdfClient: pdfClient}
+func NewBridgeConnectorService(client gen_proto.CongratulationServiceClient) *BridgeConnectorService {
+	return &BridgeConnectorService{client: client}
 }
 
 func (s *BridgeConnectorService) SaveUser(user bridge.User) error {
@@ -74,7 +72,7 @@ func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (tgbotapi.FileB
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	response, _ := s.pdfClient.QueryForPDF(ctx, &pdf_proto.PDFRequest{ChatID: chatID})
+	response, _ := s.client.GetStatistics(ctx, &gen_proto.ChatRequest{ChatID: chatID})
 	receivedFile := tgbotapi.FileBytes{
 		Name:  fmt.Sprintf("Chat-%d.pdf", chatID),
 		Bytes: response.Data,

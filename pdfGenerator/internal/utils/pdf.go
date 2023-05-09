@@ -21,13 +21,15 @@ var fontMainSize float64 = 16
 var regularFont string = "times"
 var boldFont string = "times-bold"
 
-func NewPDF(users []models.User, chatID int64) {
+func NewPDF(users []models.User, chatID int64) *gopdf.GoPdf {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go GenerateAllImages(chatID, users, wg)
 	wg.Wait()
 	pdf := reportHeadline(chatID)
 	pdf = newTable(pdf, users, chatID)
+
+	return pdf
 }
 
 func reportHeadline(chatID int64) *gopdf.GoPdf {

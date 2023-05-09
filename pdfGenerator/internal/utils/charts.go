@@ -16,14 +16,16 @@ import (
 
 var arr []models.User
 
-func GenerateAllImages(chatID int64, users []models.User) {
+func GenerateAllImages(chatID int64, users []models.User, wg *sync.WaitGroup) {
 	arr = users
-	wg := &sync.WaitGroup{}
-	wg.Add(3)
-	go createYearsPieChart(chatID, wg)
-	go createMonthsPieChart(chatID, wg)
-	go createAgesPieChart(chatID, wg)
-	wg.Wait()
+
+	innerWg := &sync.WaitGroup{}
+	innerWg.Add(3)
+	go createYearsPieChart(chatID, innerWg)
+	go createMonthsPieChart(chatID, innerWg)
+	go createAgesPieChart(chatID, innerWg)
+	innerWg.Wait()
+	wg.Done()
 
 }
 
@@ -167,8 +169,6 @@ func createAgesPieChart(chatID int64, wg *sync.WaitGroup) {
 	)
 	generateFiles(pie, chatID, "ages", wg)
 }
-
-var youth string = "10-20"
 
 func getCategory(age int) string {
 	var category string

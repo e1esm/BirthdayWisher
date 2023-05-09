@@ -110,6 +110,9 @@ services:
     networks:
       mynet:
           ipv4_address: 173.20.0.4
+    environment:
+      VIRTUAL_HOST: aicaller.docker
+      VIRTUAL_PORT: 8099
   bridge_server:
     container_name: bridge_server
     build:
@@ -127,6 +130,9 @@ services:
     networks:
       mynet:
         ipv4_address: 173.20.0.5
+    environment:
+      VIRTUAL_HOST: bridge_server.docker
+      VIRTUAL_PORT: 8099
 volumes:
   dbdata:
   grafana_data:

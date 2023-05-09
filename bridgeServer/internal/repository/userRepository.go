@@ -22,7 +22,7 @@ func (r *UserRepository) SaveUser(user *model.User) {
 	err := r.db.First(&retrievedUser, user.ID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.Logger.Info("Created user", zap.String("user", user.Username))
-		r.db.Create(user)
+		r.db.Debug().Create(user)
 	} else {
 		utils.Logger.Info("Updated user", zap.String("user", user.Username))
 		r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&user)

@@ -21,7 +21,7 @@ func NewUserRepository() *UserRepository {
 
 func (r *UserRepository) FetchUsersFromChat(chatID int64) []models.User {
 	users := make([]models.User, 0, 10)
-	r.DB.Raw("select username, date from users inner join chats on users.id = chats.user_id where chats.id = ?", chatID).Find(&users)
+	r.DB.Raw("select username, date from users inner join chats on users.id = chats.user_id where chats.chat_id = ?", chatID).Find(&users)
 	return users
 }
 

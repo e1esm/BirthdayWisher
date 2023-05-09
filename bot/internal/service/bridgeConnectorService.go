@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	pdf_proto "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"io"
@@ -69,11 +70,14 @@ func (s *BridgeConnectorService) GetSoonBirthdays(chatID int64) (*gen_proto.Chat
 	return chatBirthdaysInfo, nil
 }
 
-func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (*pdf_proto.PDFRequest, error) {
+func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (tgbotapi.FileBytes, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	_, _ = s.pdfClient.QueryForPDF(ctx, &pdf_proto.PDFRequest{ChatID: chatID})
-
-	return nil, nil
+	response, _ := s.pdfClient.QueryForPDF(ctx, &pdf_proto.PDFRequest{ChatID: chatID})
+	receivedFile := tgbotapi.FileBytes{
+		Name:  fmt.Sprintf("Chat %d", chatID),
+		Bytes: response.Data,
+	}
+	return receivedFile, nil
 }

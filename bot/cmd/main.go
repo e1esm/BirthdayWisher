@@ -52,7 +52,8 @@ func main() {
 		scheduler = gocron.NewScheduler(location)
 	}
 	router := route.NewBirthdayRouter(bot, *service.NewBridgeConnectorService(client), scheduler)
-	scheduler.Every(1).Day().At("00:00").Do(router.DailyBirthdayChecker)
+	//scheduler.Every(1).Day().At("00:00").Do(router.DailyBirthdayChecker)
+	scheduler.Every(1).Minute().Do(router.DailyBirthdayChecker)
 	router.Scheduler.StartAsync()
 
 	for update := range updates {

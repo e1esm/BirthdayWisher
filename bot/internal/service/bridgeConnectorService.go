@@ -76,7 +76,7 @@ func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (tgbotapi.FileB
 
 	response, _ := s.pdfClient.QueryForPDF(ctx, &pdf_proto.PDFRequest{ChatID: chatID})
 	receivedFile := tgbotapi.FileBytes{
-		Name:  fmt.Sprintf("Chat %d", chatID),
+		Name:  fmt.Sprintf("Chat-%d.pdf", chatID),
 		Bytes: response.Data,
 	}
 	return receivedFile, nil

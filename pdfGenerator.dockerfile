@@ -17,13 +17,13 @@ RUN set -e; \
         xfonts-75dpi \
         xfonts-base; \
     wget https://gist.github.com/maxwelleite/10774746/raw/ttf-vista-fonts-installer.sh -q -O - | bash; \
-    wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb ; \
-    dpkg -i wkhtmltox_0.12.6-1.buster_amd64.deb; \
-    rm -rf rm -rf /var/lib/apt/lists/*
+    wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_arm64.deb ; \
+    dpkg -i wkhtmltox_0.12.6-1.buster_arm64.deb;
 
 COPY pdfGenerator/ pdfGenerator/
 COPY protobuf/bridge_to_PDF-Generator/gen_proto/ protobuf/bridge_to_PDF-Generator/gen_proto/
 COPY .env pdfGenerator.dockerfile /app/
+
 COPY scripts/ scripts/
 
 COPY --from=builder /bin/wkhtmltopdf /bin/wkhtmltopdf

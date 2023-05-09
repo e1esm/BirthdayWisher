@@ -82,14 +82,16 @@ func (s *Server) GetSoonBirthdays(ctx context.Context, req *bot_to_server_proto.
 	return response, nil
 }
 
-func (s *Server) GetPDF(ctx context.Context, req *pdf_proto.PDFRequest) (*pdf_proto.PDFResponse, error) {
-	start := time.Now()
-	response, err := s.pdfService.QueryForPDF(ctx, req)
+func (s *Server) GetStatistics(ctx context.Context, req *bot_to_server_proto.ChatRequest) (*bot_to_server_proto.PDFResponse, error) {
+	//start := time.Now()
+	utils.Logger.Info("")
+	serverToPDFprotoRequest := pdf_proto.PDFRequest{ChatID: req.ChatID}
+	response, err := s.pdfService.QueryForPDF(ctx, &serverToPDFprotoRequest)
 	if err != nil {
 		utils.Logger.Error("Got an error while retrieving PDF in GetPDF method of bridgeServer", zap.String("err", err.Error()))
-		return response, err
+		return &bot_to_server_proto.PDFResponse{Data: response.Data}, err
 	}
-	elapsed := time.Since(start).Seconds()
-	utils.GrpcRequestDuration.Observe(elapsed)
-	return response, nil
+	//elapsed := time.Since(start).Seconds()
+	//utils.GrpcRequestDuration.Observe(elapsed)
+	return &bot_to_server_proto.PDFResponse{Data: response.Data}, nil
 }

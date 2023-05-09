@@ -37,12 +37,12 @@ func reportHeadline(chatID int64) *gopdf.GoPdf {
 	pdf.Start(gopdf.Config{PageSize: *gopdf.PageSizeA4})
 	widthCenter = gopdf.PageSizeA4.W / 2
 	pdf.AddPage()
-	err := pdf.AddTTFFont(regularFont, regularFont+":ttf")
+	err := pdf.AddTTFFont(regularFont, "./static/"+regularFont+".ttf")
 	if err != nil {
 
 		Logger.Panic("Couldn't have load the font", zap.String("font", regularFont))
 	}
-	err = pdf.AddTTFFont(boldFont, boldFont+":ttf")
+	err = pdf.AddTTFFont(boldFont, "./static/"+boldFont+".ttf")
 	if err != nil {
 		Logger.Panic("Couldn't have load the bold font", zap.String("font", boldFont))
 	}
@@ -75,23 +75,21 @@ func newTableHeader(pdf *gopdf.GoPdf) *gopdf.GoPdf {
 }
 
 func newTable(pdf *gopdf.GoPdf, users []models.User, chatID int64) *gopdf.GoPdf {
-
+	Logger.Info(fmt.Sprintf("%v", users, zap.String("method", "newTable")))
 	pdf.SetX(widthCenter - headerLength/2)
 	fmt.Print(users)
-	for i := 0; i < 10; i++ {
-		for _, v := range users {
-			if pdf.GetY() > gopdf.PageSizeA4.W+200 {
-				pdf.AddPage()
-			}
-			pdf.SetX(widthCenter - headerLength/2)
-			pdf.CellWithOption(&gopdf.Rect{H: heightConstraint, W: widthConstraint}, v.Username, gopdf.CellOption{Border: gopdf.Left | gopdf.Right | gopdf.Bottom | gopdf.Top,
-				Align: gopdf.Middle | gopdf.Center})
-			pdf.CellWithOption(&gopdf.Rect{H: heightConstraint, W: widthConstraint}, v.Date[:10], gopdf.CellOption{Border: gopdf.Left | gopdf.Right | gopdf.Bottom | gopdf.Top,
-				Align: gopdf.Middle | gopdf.Center})
-			pdf.Br(25)
+	for _, v := range users {
+		if pdf.GetY() > gopdf.PageSizeA4.W+200 {
+			pdf.AddPage()
 		}
+		pdf.SetX(widthCenter - headerLength/2)
+		pdf.CellWithOption(&gopdf.Rect{H: heightConstraint, W: widthConstraint}, v.Username, gopdf.CellOption{Border: gopdf.Left | gopdf.Right | gopdf.Bottom | gopdf.Top,
+			Align: gopdf.Middle | gopdf.Center})
+		pdf.CellWithOption(&gopdf.Rect{H: heightConstraint, W: widthConstraint}, v.Date[:10], gopdf.CellOption{Border: gopdf.Left | gopdf.Right | gopdf.Bottom | gopdf.Top,
+			Align: gopdf.Middle | gopdf.Center})
+		pdf.Br(25)
 	}
-
+	pdf.AddPage()
 	return newImages(pdf, chatID)
 }
 

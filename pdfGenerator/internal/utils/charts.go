@@ -35,7 +35,7 @@ func generateFiles(chart *charts.Pie, chatId int64, pieType string, wg *sync.Wai
 	buf := new(bytes.Buffer)
 	_ = chart.Render(buf)
 
-	strContent := string(buf.String())
+	strContent := buf.String()
 	strContent = strings.ReplaceAll(strContent, "let", "")
 	strContent = strings.ReplaceAll(strContent, "\"use strict\";", "")
 	f, _ := os.Create(nameHtml)

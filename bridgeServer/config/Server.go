@@ -5,7 +5,6 @@ import (
 	"bridgeServer/internal/service"
 	"bridgeServer/utils"
 	"context"
-	"fmt"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	pdf_proto "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
 	"go.uber.org/zap"
@@ -51,16 +50,14 @@ func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.User
 func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_server_proto.CongratulationService_GetDataForCongratulationsServer) error {
 	start := time.Now()
 	users := s.userService.GetUsersWithBirthdayToday()
-	utils.Logger.Info(fmt.Sprintf("Received users with birthday today: %v", users))
 	wg := new(sync.WaitGroup)
 	for _, user := range users {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, user model.User) {
 			chats := make([]*bot_to_server_proto.ChatRequest, 0)
 			for _, chat := range user.CurrentChat {
-				chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ChatID})
+				chats = append(chats, &bot_to_server_proto.ChatRequest{ChatID: chat.ID})
 			}
-			utils.Logger.Info(fmt.Sprintf("Chats of received user: %v", chats))
 			congratulationSentence := s.gptService.GetCongratulation(user.Username)
 			res := &bot_to_server_proto.CongratulationResponse{Username: user.Username, UserID: user.ID, ChatIDs: chats, CongratulationSentence: congratulationSentence}
 			if err := server.Send(res); err != nil {

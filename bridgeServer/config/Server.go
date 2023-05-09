@@ -6,6 +6,7 @@ import (
 	"bridgeServer/utils"
 	"context"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
+	pdf_proto "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
@@ -76,6 +77,18 @@ func (s *Server) GetDataForCongratulations(req *emptypb.Empty, server bot_to_ser
 func (s *Server) GetSoonBirthdays(ctx context.Context, req *bot_to_server_proto.ChatRequest) (*bot_to_server_proto.ChatBirthdaysResponse, error) {
 	start := time.Now()
 	response := s.userService.GetUsersWithBirthdaySoon(req.ChatID)
+	elapsed := time.Since(start).Seconds()
+	utils.GrpcRequestDuration.Observe(elapsed)
+	return response, nil
+}
+
+func (s *Server) GetPDF(ctx context.Context, req *pdf_proto.PDFRequest) (*pdf_proto.PDFResponse, error) {
+	start := time.Now()
+	response, err := s.pdfService.QueryForPDF(ctx, req)
+	if err != nil {
+		utils.Logger.Error("Got an error while retrieving PDF in GetPDF method of bridgeServer", zap.String("err", err.Error()))
+		return response, err
+	}
 	elapsed := time.Since(start).Seconds()
 	utils.GrpcRequestDuration.Observe(elapsed)
 	return response, nil

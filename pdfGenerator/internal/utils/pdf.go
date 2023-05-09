@@ -25,6 +25,7 @@ func NewPDF(users []models.User, chatID int64) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go GenerateAllImages(chatID, users, wg)
+	wg.Wait()
 	pdf := reportHeadline(chatID)
 	pdf = newTable(pdf, users, chatID)
 }
@@ -97,12 +98,12 @@ func newImages(pdf *gopdf.GoPdf, chatID int64) *gopdf.GoPdf {
 	gap := 275
 	agesFile, err := os.Open(fmt.Sprintf("pie-ages-%d.png", chatID))
 	if err != nil {
-		panic(err)
+		Logger.Info("Couldn't have opened first file")
 	}
 	defer agesFile.Close()
 	agesImg, err := png.Decode(agesFile)
 	if err != nil {
-		panic(err)
+		Logger.Info("Couldn't have decoded first file")
 	}
 	pageWidth := gopdf.PageSizeA4.W
 	agesWidth := float64(agesImg.Bounds().Max.X - agesImg.Bounds().Min.X)
@@ -111,23 +112,23 @@ func newImages(pdf *gopdf.GoPdf, chatID int64) *gopdf.GoPdf {
 
 	monthsFile, err := os.Open(fmt.Sprintf("pie-months-%d.png", chatID))
 	if err != nil {
-		panic(err)
+		Logger.Info("Couldn't have opened 2nd file")
 	}
 	defer monthsFile.Close()
 	monthsImg, err := png.Decode(monthsFile)
 	if err != nil {
-		panic(err)
+		Logger.Info("Couldn't have decoded 2nd a file")
 	}
 	pdf.ImageFrom(monthsImg, centerX, float64(gap), &gopdf.Rect{H: gopdf.PageSizeA4.H / 3, W: gopdf.PageSizeA4.W})
 
 	yearsFIle, err := os.Open(fmt.Sprintf("pie-years-%d.png", chatID))
 	if err != nil {
-		panic(err)
+		Logger.Info("Couldn't have opened last file")
 	}
 	defer yearsFIle.Close()
 	yearsImg, err := png.Decode(yearsFIle)
 	if err != nil {
-		panic(err)
+		Logger.Info("Couldn't have opened last file")
 	}
 	pdf.ImageFrom(yearsImg, centerX, float64(gap*2), &gopdf.Rect{H: gopdf.PageSizeA4.H / 3, W: gopdf.PageSizeA4.W})
 

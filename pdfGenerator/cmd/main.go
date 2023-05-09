@@ -30,6 +30,7 @@ func main() {
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor))
 	gen_proto.RegisterPDFGenerationServiceServer(grpcServer, config.NewServer())
+	grpc_prometheus.Register(grpcServer)
 	group := run.Group{}
 
 	group.Add(func() error {

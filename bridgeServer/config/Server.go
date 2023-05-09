@@ -16,12 +16,13 @@ import (
 type Server struct {
 	userService *service.UserService
 	gptService  *service.GPTService
+	pdfService  *service.PDFService
 	bot_to_server_proto.CongratulationServiceServer
 	config *Config
 }
 
-func NewServer(userService *service.UserService, gptService *service.GPTService, config *Config) *Server {
-	return &Server{userService: userService, gptService: gptService, config: config}
+func NewServer(userService *service.UserService, gptService *service.GPTService, config *Config, pdfService *service.PDFService) *Server {
+	return &Server{userService: userService, gptService: gptService, config: config, pdfService: pdfService}
 }
 
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {

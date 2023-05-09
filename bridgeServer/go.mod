@@ -11,7 +11,10 @@ require (
 	google.golang.org/protobuf v1.30.0
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.25.0
+	github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto v1.0.0
 )
+
+replace github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto => ./../protobuf/bridge_to_PDF-Generator/gen_proto
 
 replace github.com/e1esm/protobuf/bot_to_server/gen_proto => ./../protobuf/bot_to_server/gen_proto
 

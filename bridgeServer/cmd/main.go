@@ -10,6 +10,7 @@ import (
 	"fmt"
 	bot_to_server_proto "github.com/e1esm/protobuf/bot_to_server/gen_proto"
 	"github.com/e1esm/protobuf/bridge_to_API/gen_proto"
+	pdf_client "github.com/e1esm/protobuf/bridge_to_PDF-Generator/gen_proto"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/joho/godotenv"
 	"github.com/oklog/run"
@@ -34,12 +35,13 @@ func main() {
 		log.Fatalf("Couldn't have opened env file: %v", err)
 	}
 
-	cfg := config.NewConfig(dbConfiguration(), GRPCClientConfiguration())
+	cfg := config.NewConfig(dbConfiguration(), GRPCClientConfiguration(), GRPCPDFClientConfiguration())
 	defer cfg.DB.DB()
 	userRepository := repository.NewUserRepository(cfg.DB)
 	userService := service.NewUserService(userRepository)
 	gptService := service.NewGPTService(cfg.Client)
-	serverImpl := config.NewServer(userService, gptService, cfg)
+	pdfService := service.NewPDFService(cfg.PDFClient)
+	serverImpl := config.NewServer(userService, gptService, cfg, pdfService)
 
 	port := os.Getenv("GRPC_PORT")
 	address := os.Getenv("BRIDGE_SERVER_CONTAINER_NAME")
@@ -89,6 +91,17 @@ func GRPCClientConfiguration() gen_proto.CongratulationServiceClient {
 	}
 	client := gen_proto.NewCongratulationServiceClient(conn)
 
+	return client
+}
+
+func GRPCPDFClientConfiguration() pdf_client.PDFGenerationServiceClient {
+	port := os.Getenv("GRPC_PORT")
+	name := os.Getenv("PDF_GENERATOR_CONTAINER_NAME")
+	conn, err := grpc.Dial(name+port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		utils.Logger.Fatal("Couldn't have connected to the PDFServer from BridgeServer", zap.String("err", err.Error()))
+	}
+	client := pdf_client.NewPDFGenerationServiceClient(conn)
 	return client
 }
 

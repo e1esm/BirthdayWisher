@@ -11,7 +11,7 @@ func (r *BirthdayRouter) soon(message tgbotapi.Message) {
 	response, _ := r.ConnectorService.GetSoonBirthdays(message.Chat.ID)
 
 	sb := strings.Builder{}
-	sb.WriteString("*Предстоящие дни рождения этого месяца*\n=====\n")
+	sb.WriteString("* Предстоящие дни рождения этого месяца * \n-------\n")
 	for i, birthday := range response.SoonBirthdays {
 		sb.WriteString(birthday.Username)
 		sb.WriteString(" : ")
@@ -23,9 +23,13 @@ func (r *BirthdayRouter) soon(message tgbotapi.Message) {
 		}
 		sb.WriteString("\n\n")
 	}
-	sb.WriteString("=====\n")
+	sb.WriteString("-------\n")
 
 	msg := tgbotapi.NewMessage(message.Chat.ID, sb.String())
 	msg.ParseMode = "markdown"
-	r.bot.Send(msg)
+	_, err := r.bot.Send(msg)
+	if err != nil {
+		msg.ParseMode = ""
+		r.bot.Send(msg)
+	}
 }

@@ -25,7 +25,7 @@ func (r *UserRepository) SaveUser(user *model.User) {
 		r.db.Debug().Create(user)
 	} else {
 		utils.Logger.Info("Updated user", zap.String("user", user.Username))
-		r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&user)
+		r.db.Model(user).Omit("CurrentChat").Update("date", user.Date)
 	}
 }
 

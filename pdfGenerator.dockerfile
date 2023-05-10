@@ -18,7 +18,8 @@ RUN set -e; \
         xfonts-base; \
     wget https://gist.github.com/maxwelleite/10774746/raw/ttf-vista-fonts-installer.sh -q -O - | bash; \
     wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_arm64.deb ; \
-    dpkg -i wkhtmltox_0.12.6-1.buster_arm64.deb;
+    dpkg -i wkhtmltox_0.12.6-1.buster_arm64.deb; \
+    rm  /app/wkhtmltox_0.12.6-1.buster_arm64.deb
 
 COPY pdfGenerator/ pdfGenerator/
 COPY protobuf/bridge_to_PDF-Generator/gen_proto/ protobuf/bridge_to_PDF-Generator/gen_proto/
@@ -36,9 +37,10 @@ ENV TZ="Europe/Moscow"
 ENV GOBIN /go/bin
 
 WORKDIR /app/pdfGenerator
+RUN mkdir generated_pdfs
+
 
 RUN go mod download && go mod tidy
-
 RUN go build -o main ./cmd/main.go
 
 CMD ["./main"]

@@ -15,6 +15,6 @@ func NewPDFService() *PDFService {
 
 func (s *PDFService) GeneratePDF(chatID int64) []byte {
 	users := s.repository.FetchUsersFromChat(chatID)
-	pdf := utils.NewPDF(users, chatID)
-	return pdf.GetBytesPdf()
+	pdfBytes, _ := utils.NewPDF(users, chatID)
+	return pdfBytes
 }

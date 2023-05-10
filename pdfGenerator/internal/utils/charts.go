@@ -30,8 +30,8 @@ func GenerateAllImages(chatID int64, users []models.User, wg *sync.WaitGroup) {
 }
 
 func generateFiles(chart *charts.Pie, chatId int64, pieType string, wg *sync.WaitGroup) {
-	nameHtml := fmt.Sprintf("pie-%s-%d.html", pieType, chatId)
-	namePng := fmt.Sprintf("pie-%s-%d.png", pieType, chatId)
+	nameHtml := fmt.Sprintf("./generated_pdfs/pie-%s-%d.html", pieType, chatId)
+	namePng := fmt.Sprintf("./generated_pdfs/pie-%s-%d.png", pieType, chatId)
 	buf := new(bytes.Buffer)
 	_ = chart.Render(buf)
 

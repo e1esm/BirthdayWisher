@@ -2,11 +2,14 @@ FROM surnet/alpine-wkhtmltopdf:3.8-0.12.5-full as builder
 
 FROM golang:1.20-buster
 
+RUN touch /var/log/cron.log
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install libc-dev && apt-get install gcc && apt-get install make && apt-get install bash && apt-get install curl
 RUN set -e; \
     apt-get update; \
+    apt-get -y install cron; \
     apt-get install -y --no-install-recommends \
         apt-utils \
         ghostscript \

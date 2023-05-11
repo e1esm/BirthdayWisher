@@ -43,6 +43,7 @@ services:
       - aicaller
       - bridge_server
   pdf_generator:
+    platform: linux/x86_64
     container_name: pdf_generator
     build:
       context: .

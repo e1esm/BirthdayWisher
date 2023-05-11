@@ -17,17 +17,7 @@ const (
 	DAY
 )
 
-const ARR_LENGTH = 12
-const OFFSET_STEP = 12
-
-var years []int
-
 func init() {
-	years = make([]int, 0, 12)
-	y := time.Now().Year()
-	for i := 0; i < ARR_LENGTH; i++ {
-		years = append(years, y-i)
-	}
 	RWapInstance = RWMap{UserStateConfigs: make(map[int64]StateConfig), Mutex: &sync.RWMutex{}}
 }
 
@@ -40,47 +30,54 @@ type RWMap struct {
 
 type StateConfig struct {
 	Date         string
+	ChatID       int64
+	UserID       int64
+	MessageID    int
 	CurrentState State
 	Offset       int
 }
 
-func (r *BirthdayRouter) addDate(message tgbotapi.Message) {
+func (r *BirthdayRouter) addDate(update tgbotapi.Update) {
 	currentStateConfig := StateConfig{
 		CurrentState: START,
+		UserID:       update.SentFrom().ID,
+		ChatID:       update.FromChat().ID,
+		MessageID:    update.Message.MessageID,
 		Offset:       0,
 	}
 	RWapInstance.Mutex.Lock()
-	RWapInstance.UserStateConfigs[message.From.ID] = currentStateConfig
+	RWapInstance.UserStateConfigs[currentStateConfig.UserID] = currentStateConfig
 	RWapInstance.Mutex.Unlock()
-	r.addYear(message)
+	r.addYear(update)
 }
 
-func (r *BirthdayRouter) addYear(message tgbotapi.Message) {
+func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 
 	RWapInstance.Mutex.RLock()
-	v, _ := RWapInstance.UserStateConfigs[message.From.ID]
+	v, _ := RWapInstance.UserStateConfigs[update.SentFrom().ID]
 	RWapInstance.Mutex.RUnlock()
 	v.CurrentState = YEAR
 	RWapInstance.Mutex.Lock()
-	RWapInstance.UserStateConfigs[message.From.ID] = v
+	RWapInstance.UserStateConfigs[v.UserID] = v
 	RWapInstance.Mutex.Unlock()
 
 	arrRows := make([][]tgbotapi.InlineKeyboardButton, 4)
-	currentOffset := 0
+	currentOffset := v.Offset
 
+	currentYear := time.Now().Year()
 	for i := 0; i < 4; i++ {
 		arrRows[i] = make([]tgbotapi.InlineKeyboardButton, 3)
 		for j := 0; j < 3; j++ {
-			arrRows[i][j] = tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("%d", years[currentOffset]), fmt.Sprintf("%d", years[currentOffset]))
+			arrRows[i][j] = tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("%d", currentYear-currentOffset), fmt.Sprintf("%d", currentYear-currentOffset))
 			currentOffset++
 		}
 	}
-	arrRows[len(arrRows)-1] = []tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(emoji.LeftArrow.String(), fmt.Sprintf("-12")),
+	arrRows[len(arrRows)-1] = []tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(emoji.LeftArrow.String(), "-12"),
 		tgbotapi.NewInlineKeyboardButtonData(emoji.CrossMark.String(), fmt.Sprintf("0")),
-		tgbotapi.NewInlineKeyboardButtonData(emoji.RightArrow.String(), fmt.Sprintf("-12")),
+		tgbotapi.NewInlineKeyboardButtonData(emoji.RightArrow.String(), fmt.Sprintf("+12")),
 	}
 
-	msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите год")
+	msg := tgbotapi.NewMessage(v.ChatID, "Выберите год")
 	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 		arrRows[0],
 		arrRows[1],
@@ -89,11 +86,11 @@ func (r *BirthdayRouter) addYear(message tgbotapi.Message) {
 	)
 
 	RWapInstance.Mutex.RLock()
-	v, _ = RWapInstance.UserStateConfigs[message.From.ID]
+	v, _ = RWapInstance.UserStateConfigs[v.ChatID]
 	RWapInstance.Mutex.RUnlock()
 	v.Offset = currentOffset
 	RWapInstance.Mutex.Lock()
-	RWapInstance.UserStateConfigs[message.From.ID] = v
+	RWapInstance.UserStateConfigs[v.ChatID] = v
 	RWapInstance.Mutex.Unlock()
 
 	r.bot.Send(msg)

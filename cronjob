@@ -1,0 +1,1 @@
+*/30 * * * * /app/scripts/rmScript.sh >> /var/log/cron.log

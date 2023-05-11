@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install libc-dev && apt-get install gcc && apt-get install make && apt-get install bash && apt-get install curl
 RUN set -e; \
     apt-get update; \
-    apt-get -y install cron; \
+    apt-get -y install cronjob; \
     apt-get install -y --no-install-recommends \
         apt-utils \
         ghostscript \
@@ -30,18 +30,14 @@ COPY scripts/ scripts/
 COPY --from=builder /bin/wkhtmltopdf /bin/wkhtmltopdf
 COPY --from=builder /bin/wkhtmltoimage /bin/wkhtmltoimage
 
-ENV URL_FOR_DOWNLOAD = https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
-
-
 ENV TZ="Europe/Moscow"
 ENV GOBIN /go/bin
 
 WORKDIR /app/pdfGenerator
-RUN mkdir generated_pdfs
 
-COPY cron /etc/cron.d/cronjob
-RUN chmod 0644 /etc/cron.d/cronjob
-RUN crontab /etc/cron.d/cronjob
+COPY cronjob /etc/cron.d/cronjob
+RUN chmod 0644 /etc/cronjob.d/cronjob
+RUN crontab /etc/cronjob.d/cronjob
 
 
 RUN go mod download && go mod tidy

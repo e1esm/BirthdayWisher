@@ -1,9 +1,6 @@
 FROM surnet/alpine-wkhtmltopdf:3.8-0.12.5-full as builder
 
 FROM golang:1.20-buster
-
-RUN touch /var/log/cron.log
-
 WORKDIR /app
 
 RUN apt-get update && apt-get install libc-dev && apt-get install gcc && apt-get install make && apt-get install bash && apt-get install curl
@@ -40,9 +37,14 @@ ENV TZ="Europe/Moscow"
 ENV GOBIN /go/bin
 
 WORKDIR /app/pdfGenerator
+RUN mkdir generated_pdfs
+
+COPY cron /etc/cron.d/cronjob
+RUN chmod 0644 /etc/cron.d/cronjob
+RUN crontab /etc/cron.d/cronjob
 
 
 RUN go mod download && go mod tidy
 RUN go build -o main ./cmd/main.go
 
-CMD ["./main"]
+CMD cron && ./main

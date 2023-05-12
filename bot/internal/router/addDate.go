@@ -1,9 +1,12 @@
 package router
 
 import (
+	"BirthdayWisherBot/utils"
 	"fmt"
 	"github.com/enescakir/emoji"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"go.uber.org/zap"
+	"log"
 	"sync"
 	"time"
 )
@@ -48,10 +51,11 @@ func (r *BirthdayRouter) addDate(update tgbotapi.Update) {
 	RWapInstance.Mutex.Lock()
 	RWapInstance.UserStateConfigs[currentStateConfig.UserID] = currentStateConfig
 	RWapInstance.Mutex.Unlock()
-	r.addYear(update)
+	log.Println(currentStateConfig)
+	r.addYear(update, nil)
 }
 
-func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
+func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
 
 	RWapInstance.Mutex.RLock()
 	v, _ := RWapInstance.UserStateConfigs[update.SentFrom().ID]
@@ -61,7 +65,7 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 	RWapInstance.UserStateConfigs[v.UserID] = v
 	RWapInstance.Mutex.Unlock()
 
-	arrRows := make([][]tgbotapi.InlineKeyboardButton, 4)
+	arrRows := make([][]tgbotapi.InlineKeyboardButton, 5)
 	currentOffset := v.Offset
 
 	currentYear := time.Now().Year()
@@ -76,27 +80,23 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 		tgbotapi.NewInlineKeyboardButtonData(emoji.CrossMark.String(), fmt.Sprintf("0")),
 		tgbotapi.NewInlineKeyboardButtonData(emoji.RightArrow.String(), fmt.Sprintf("+12")),
 	}
-
-	msg := tgbotapi.NewMessage(v.ChatID, "Выберите год")
-	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
-		arrRows[0],
-		arrRows[1],
-		arrRows[2],
-		arrRows[3],
-	)
-
 	RWapInstance.Mutex.RLock()
-	v, _ = RWapInstance.UserStateConfigs[v.ChatID]
+	v, _ = RWapInstance.UserStateConfigs[v.UserID]
 	RWapInstance.Mutex.RUnlock()
-	v.Offset = currentOffset
 	RWapInstance.Mutex.Lock()
-	RWapInstance.UserStateConfigs[v.ChatID] = v
+	RWapInstance.UserStateConfigs[v.UserID] = v
 	RWapInstance.Mutex.Unlock()
 
-	r.bot.Send(msg)
+	markup := tgbotapi.NewInlineKeyboardMarkup(arrRows...)
+	if messageID == nil {
+		msg := tgbotapi.NewMessage(v.ChatID, "Выберите год")
+		msg.ReplyMarkup = markup
+		if _, err := r.bot.Send(msg); err != nil {
+			utils.Logger.Error(err.Error(), zap.Int64("chatID", v.ChatID))
+		}
+	} else {
+		msg := tgbotapi.NewEditMessageReplyMarkup(v.ChatID, *messageID, markup)
+		r.bot.Send(msg)
+	}
 
 }
-
-//RIGHT ARROW - -offset
-//LEFT ARROW - +offset
-//MIDDLECROSS - 0

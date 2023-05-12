@@ -19,7 +19,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 		RWapInstance.Mutex.Lock()
 		RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 		RWapInstance.Mutex.Unlock()
-		r.addYear(update)
+		r.addYear(update, &update.CallbackQuery.Message.MessageID)
 		return
 	}
 	if len(callback.Data) == 1 && stateCFG.CurrentState == YEAR {

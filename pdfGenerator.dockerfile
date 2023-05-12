@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install libc-dev && apt-get install gcc && apt-get install make && apt-get install bash && apt-get install curl
 RUN set -e; \
     apt-get update; \
-    apt-get -y install cronjob; \
+    apt-get -y install cron; \
     apt-get install -y --no-install-recommends \
         apt-utils \
         ghostscript \
@@ -35,9 +35,9 @@ ENV GOBIN /go/bin
 
 WORKDIR /app/pdfGenerator
 
-COPY cronjob /etc/cron.d/cronjob
-RUN chmod 0644 /etc/cronjob.d/cronjob
-RUN crontab /etc/cronjob.d/cronjob
+COPY cron /etc/cron.d/cronjob
+RUN chmod 0644 /etc/cron.d/cronjob
+RUN crontab /etc/cron.d/cronjob
 
 
 RUN go mod download && go mod tidy

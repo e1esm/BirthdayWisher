@@ -1,7 +1,9 @@
 package router
 
 import (
+	"BirthdayWisherBot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -27,6 +29,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 		RWapInstance.Mutex.Lock()
 		RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 		RWapInstance.Mutex.Unlock()
+
 		//addMonth...
 	}
 
@@ -37,9 +40,10 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 			RWapInstance.Mutex.Lock()
 			RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 			RWapInstance.Mutex.Unlock()
-			msg := tgbotapi.NewMessage(update.FromChat().ID, callback.Data)
-
-			r.bot.Send(msg)
+			messageToBeDeleted := tgbotapi.NewDeleteMessage(stateCFG.ChatID, stateCFG.MessageID)
+			if _, err := r.bot.Request(messageToBeDeleted); err != nil {
+				utils.Logger.Error(err.Error(), zap.Int("messageID", stateCFG.MessageID))
+			}
 
 		}
 	}

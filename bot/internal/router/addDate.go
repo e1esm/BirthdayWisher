@@ -80,23 +80,29 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
 		tgbotapi.NewInlineKeyboardButtonData(emoji.CrossMark.String(), fmt.Sprintf("0")),
 		tgbotapi.NewInlineKeyboardButtonData(emoji.RightArrow.String(), fmt.Sprintf("+12")),
 	}
+	wasMessageIDFound := false
 	RWapInstance.Mutex.RLock()
 	v, _ = RWapInstance.UserStateConfigs[v.UserID]
 	RWapInstance.Mutex.RUnlock()
 	RWapInstance.Mutex.Lock()
+	if messageID != nil {
+		v.MessageID = *messageID
+		wasMessageIDFound = true
+	}
 	RWapInstance.UserStateConfigs[v.UserID] = v
 	RWapInstance.Mutex.Unlock()
 
 	markup := tgbotapi.NewInlineKeyboardMarkup(arrRows...)
-	if messageID == nil {
+
+	if wasMessageIDFound {
+		msg := tgbotapi.NewEditMessageReplyMarkup(v.ChatID, *messageID, markup)
+		r.bot.Send(msg)
+	} else {
 		msg := tgbotapi.NewMessage(v.ChatID, "Выберите год")
 		msg.ReplyMarkup = markup
 		if _, err := r.bot.Send(msg); err != nil {
 			utils.Logger.Error(err.Error(), zap.Int64("chatID", v.ChatID))
 		}
-	} else {
-		msg := tgbotapi.NewEditMessageReplyMarkup(v.ChatID, *messageID, markup)
-		r.bot.Send(msg)
 	}
 
 }

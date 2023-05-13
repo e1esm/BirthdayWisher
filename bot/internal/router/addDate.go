@@ -42,7 +42,8 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
 	for i := 0; i < 4; i++ {
 		arrRows[i] = make([]tgbotapi.InlineKeyboardButton, 3)
 		for j := 0; j < 3; j++ {
-			arrRows[i][j] = tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("%d", currentYear-currentOffset), fmt.Sprintf("%d", currentYear-currentOffset))
+			year := fmt.Sprintf("%d", currentYear-currentOffset)
+			arrRows[i][j] = tgbotapi.NewInlineKeyboardButtonData(year, year)
 			currentOffset++
 		}
 	}
@@ -92,8 +93,12 @@ func (r *BirthdayRouter) addMonth(update tgbotapi.Update) {
 
 func (r *BirthdayRouter) addDay(update tgbotapi.Update) {
 
-	state.RWapInstance.Mutex.RLock()
+	state.RWapInstance.Mutex.Lock()
 	v, _ := state.RWapInstance.UserStateConfigs[update.SentFrom().ID]
 	v.CurrentState = state.DAY
-
+	state.RWapInstance.UserStateConfigs[update.SentFrom().ID] = v
+	state.RWapInstance.Mutex.Unlock()
+	message := tgbotapi.NewMessage(v.ChatID, "Выберите день")
+	message.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(state.GenerateDaysButtons(v.Month, v.Year)...)
+	r.bot.Send(message)
 }

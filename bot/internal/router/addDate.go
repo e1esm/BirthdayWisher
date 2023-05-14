@@ -22,10 +22,10 @@ func (r *BirthdayRouter) addDate(update tgbotapi.Update) {
 	state.RWapInstance.UserStateConfigs[currentStateConfig.UserID] = currentStateConfig
 	state.RWapInstance.Mutex.Unlock()
 	log.Println(currentStateConfig)
-	r.addYear(update, nil)
+	r.addYear(update)
 }
 
-func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
+func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 
 	state.RWapInstance.Mutex.RLock()
 	v, _ := state.RWapInstance.UserStateConfigs[update.SentFrom().ID]
@@ -56,8 +56,8 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
 	v, _ = state.RWapInstance.UserStateConfigs[v.UserID]
 	state.RWapInstance.Mutex.RUnlock()
 	state.RWapInstance.Mutex.Lock()
-	if messageID != nil {
-		v.MessageID = *messageID
+	if update.CallbackQuery != nil {
+		v.MessageID = update.CallbackQuery.Message.MessageID
 		wasMessageIDFound = true
 	}
 	state.RWapInstance.UserStateConfigs[v.UserID] = v
@@ -66,7 +66,7 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
 	markup := tgbotapi.NewInlineKeyboardMarkup(arrRows...)
 
 	if wasMessageIDFound {
-		msg := tgbotapi.NewEditMessageReplyMarkup(v.ChatID, *messageID, markup)
+		msg := tgbotapi.NewEditMessageReplyMarkup(v.ChatID, update.CallbackQuery.Message.MessageID, markup)
 		r.bot.Send(msg)
 	} else {
 		msg := tgbotapi.NewMessage(v.ChatID, "Выберите год")
@@ -79,7 +79,6 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update, messageID *int) {
 }
 
 func (r *BirthdayRouter) addMonth(update tgbotapi.Update) {
-
 	state.RWapInstance.Mutex.Lock()
 	v, _ := state.RWapInstance.UserStateConfigs[update.SentFrom().ID]
 	v.CurrentState = state.MONTH

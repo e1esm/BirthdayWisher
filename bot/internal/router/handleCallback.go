@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"strconv"
+	"time"
 )
 
 var YearIfOmit = 1000
@@ -23,7 +24,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 		state.RWapInstance.Mutex.Lock()
 		state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 		state.RWapInstance.Mutex.Unlock()
-		r.addYear(update, &update.CallbackQuery.Message.MessageID)
+		r.addYear(update)
 		return
 	}
 	if len(callback.Data) == 1 && stateCFG.CurrentState == state.YEAR {
@@ -38,7 +39,13 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 	if ok {
 		switch stateCFG.CurrentState {
 		case state.YEAR:
-			stateCFG.Year, _ = strconv.Atoi(callback.Data)
+			tempYear, _ := strconv.Atoi(callback.Data)
+			if !isValidYear(tempYear) {
+				alert := tgbotapi.NewCallbackWithAlert(update.CallbackQuery.ID, "Выбранный год больше текущего")
+				r.bot.Send(alert)
+				return
+			}
+			stateCFG.Year = tempYear
 			state.RWapInstance.Mutex.Lock()
 			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 			state.RWapInstance.Mutex.Unlock()
@@ -48,7 +55,13 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 			}
 			r.addMonth(update)
 		case state.MONTH:
-			stateCFG.Month, _ = strconv.Atoi(callback.Data)
+			tempMonth, _ := strconv.Atoi(callback.Data)
+			if !isValidMonthAndYear(tempMonth, stateCFG.Year) {
+				alert := tgbotapi.NewCallbackWithAlert(update.CallbackQuery.ID, "Выбранный месяц больше текущего")
+				r.bot.Send(alert)
+				return
+			}
+			stateCFG.Month = tempMonth
 			state.RWapInstance.Mutex.Lock()
 			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 			state.RWapInstance.Mutex.Unlock()
@@ -59,7 +72,13 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 			r.addDay(update)
 
 		case state.DAY:
-			stateCFG.Day, _ = strconv.Atoi(callback.Data)
+
+			tempDay, _ := strconv.Atoi(callback.Data)
+			if !isValidDay(stateCFG.Year, stateCFG.Month, tempDay) {
+				alert := tgbotapi.NewCallbackWithAlert(update.CallbackQuery.ID, "Выбранный месяц больше текущего")
+				r.bot.Send(alert)
+				return
+			}
 			state.RWapInstance.Mutex.Lock()
 			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 			state.RWapInstance.Mutex.Unlock()
@@ -81,4 +100,25 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 
 	}
 
+}
+
+func isValidYear(year int) bool {
+	if year > time.Now().Year() {
+		return false
+	}
+	return true
+}
+
+func isValidMonthAndYear(month, year int) bool {
+	if year == time.Now().Year() && time.Now().Month() < time.Month(month) {
+		return false
+	}
+	return true
+}
+
+func isValidDay(year, month, day int) bool {
+	if year == time.Now().Year() && time.Now().Month() == time.Month(month) && day > time.Now().Day() {
+		return false
+	}
+	return true
 }

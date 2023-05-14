@@ -79,3 +79,7 @@ func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (tgbotapi.FileB
 	}
 	return receivedFile, nil
 }
+
+func (s *BridgeConnectorService) CreateInstanceToBeDelivered(update tgbotapi.Update, userID int64) {
+
+}

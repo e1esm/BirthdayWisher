@@ -9,7 +9,6 @@ import (
 	"os"
 	"pdfGenerator/internal/models"
 	"sync"
-
 	"time"
 )
 
@@ -30,18 +29,20 @@ func NewPDF(users []models.User, chatID int64) ([]byte, error) {
 	}
 
 	wg := &sync.WaitGroup{}
+	start := time.Now()
 	wg.Add(1)
 	go GenerateAllImages(chatID, users, wg)
 	wg.Wait()
+	elapsed := time.Since(start)
+	Logger.Info("Time of files generation", zap.Duration("Time", elapsed))
 	pdf := reportHeadline(chatID)
+	defer pdf.Close()
 	pdf = newTable(pdf, users, chatID)
-	bytes = pdf.GetBytesPdf()
 	err = pdf.WritePdf(fmt.Sprintf("./generated_pdfs/chat-%d.pdf", chatID))
 	if err != nil {
 		Logger.Error("Couldn't have saved the pdf file", zap.String("err", err.Error()))
 	}
-	Logger.Info("Bytes received from the newly generated pdf", zap.String("bytes", string(pdf.GetBytesPdf())))
-	return bytes, nil
+	return getFromSystem(chatID)
 }
 
 func reportHeadline(chatID int64) *gopdf.GoPdf {
@@ -106,7 +107,6 @@ func newTable(pdf *gopdf.GoPdf, users []models.User, chatID int64) *gopdf.GoPdf 
 }
 
 func newImages(pdf *gopdf.GoPdf, chatID int64) *gopdf.GoPdf {
-
 	gap := 275
 	agesFile, err := os.Open(fmt.Sprintf("./generated_pdfs/pie-ages-%d.png", chatID))
 	if err != nil {

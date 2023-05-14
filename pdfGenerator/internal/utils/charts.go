@@ -14,19 +14,16 @@ import (
 	"time"
 )
 
-var arr []models.User
-
 func GenerateAllImages(chatID int64, users []models.User, wg *sync.WaitGroup) {
-	arr = users
+	arr := users
 
 	innerWg := &sync.WaitGroup{}
 	innerWg.Add(3)
-	go createYearsPieChart(chatID, innerWg)
-	go createMonthsPieChart(chatID, innerWg)
-	go createAgesPieChart(chatID, innerWg)
+	go createYearsPieChart(chatID, innerWg, arr)
+	go createMonthsPieChart(chatID, innerWg, arr)
+	go createAgesPieChart(chatID, innerWg, arr)
 	innerWg.Wait()
 	wg.Done()
-
 }
 
 func generateFiles(chart *charts.Pie, chatId int64, pieType string, wg *sync.WaitGroup) {
@@ -51,9 +48,9 @@ func generateFiles(chart *charts.Pie, chatId int64, pieType string, wg *sync.Wai
 	wg.Done()
 }
 
-func generateYearsPieData() []opts.PieData {
+func generateYearsPieData(arr []models.User) []opts.PieData {
 	chartPeople := make([]opts.PieData, 0, 10)
-	yearsCount := countYears()
+	yearsCount := countYears(arr)
 	for k, v := range yearsCount {
 		chartPeople = append(chartPeople, opts.PieData{
 			Name:  k,
@@ -64,9 +61,9 @@ func generateYearsPieData() []opts.PieData {
 	return chartPeople
 }
 
-func generateMonthsPieData() []opts.PieData {
+func generateMonthsPieData(arr []models.User) []opts.PieData {
 	chartPeople := make([]opts.PieData, 0, 10)
-	monthsCount := countMonths()
+	monthsCount := countMonths(arr)
 	for k, v := range monthsCount {
 		chartPeople = append(chartPeople, opts.PieData{
 			Name:  k.String(),
@@ -76,9 +73,9 @@ func generateMonthsPieData() []opts.PieData {
 	return chartPeople
 }
 
-func generateAgesPieData() []opts.PieData {
+func generateAgesPieData(arr []models.User) []opts.PieData {
 	chartPeople := make([]opts.PieData, 0, 10)
-	agesCount := countAges()
+	agesCount := countAges(arr)
 	for k, v := range agesCount {
 		chartPeople = append(chartPeople, opts.PieData{
 			Name:  k,
@@ -89,7 +86,7 @@ func generateAgesPieData() []opts.PieData {
 	return chartPeople
 }
 
-func createYearsPieChart(chatID int64, wg *sync.WaitGroup) {
+func createYearsPieChart(chatID int64, wg *sync.WaitGroup, arr []models.User) {
 	pie := charts.NewPie()
 	pie.SetGlobalOptions(
 		charts.WithTitleOpts(
@@ -99,7 +96,7 @@ func createYearsPieChart(chatID int64, wg *sync.WaitGroup) {
 		),
 	)
 	pie.SetSeriesOptions()
-	pie.AddSeries("Years", generateYearsPieData()).SetSeriesOptions(
+	pie.AddSeries("Years", generateYearsPieData(arr)).SetSeriesOptions(
 		charts.WithPieChartOpts(
 			opts.PieChart{
 				Radius: 200,
@@ -115,7 +112,7 @@ func createYearsPieChart(chatID int64, wg *sync.WaitGroup) {
 	generateFiles(pie, chatID, "years", wg)
 }
 
-func createMonthsPieChart(chatID int64, wg *sync.WaitGroup) {
+func createMonthsPieChart(chatID int64, wg *sync.WaitGroup, arr []models.User) {
 	pie := charts.NewPie()
 	pie.SetGlobalOptions(
 		charts.WithTitleOpts(
@@ -126,7 +123,7 @@ func createMonthsPieChart(chatID int64, wg *sync.WaitGroup) {
 		),
 	)
 	pie.SetSeriesOptions()
-	pie.AddSeries("Months", generateMonthsPieData()).SetSeriesOptions(
+	pie.AddSeries("Months", generateMonthsPieData(arr)).SetSeriesOptions(
 		charts.WithPieChartOpts(
 			opts.PieChart{
 				Radius: 200,
@@ -143,7 +140,7 @@ func createMonthsPieChart(chatID int64, wg *sync.WaitGroup) {
 	generateFiles(pie, chatID, "months", wg)
 }
 
-func createAgesPieChart(chatID int64, wg *sync.WaitGroup) {
+func createAgesPieChart(chatID int64, wg *sync.WaitGroup, arr []models.User) {
 	pie := charts.NewPie()
 	pie.SetGlobalOptions(
 		charts.WithTitleOpts(
@@ -154,7 +151,7 @@ func createAgesPieChart(chatID int64, wg *sync.WaitGroup) {
 		),
 	)
 	pie.SetSeriesOptions()
-	pie.AddSeries("Ages", generateAgesPieData()).SetSeriesOptions(
+	pie.AddSeries("Ages", generateAgesPieData(arr)).SetSeriesOptions(
 		charts.WithPieChartOpts(
 			opts.PieChart{
 				Radius: 200,
@@ -191,7 +188,7 @@ func getCategory(age int) string {
 	return category
 }
 
-func countAges() map[string]int {
+func countAges(arr []models.User) map[string]int {
 	agesCount := make(map[string]int)
 	for i := 0; i < len(arr); i++ {
 		temp := arr[i].Date[:4]
@@ -214,7 +211,7 @@ func countAges() map[string]int {
 	return agesCount
 }
 
-func countYears() map[string]int {
+func countYears(arr []models.User) map[string]int {
 	yearsCount := make(map[string]int)
 	for i := 0; i < len(arr); i++ {
 		temp := arr[i].Date[:4]
@@ -228,7 +225,7 @@ func countYears() map[string]int {
 	return yearsCount
 }
 
-func countMonths() map[time.Month]int {
+func countMonths(arr []models.User) map[time.Month]int {
 	monthsCount := make(map[time.Month]int)
 	for i := 0; i < len(arr); i++ {
 		temp := arr[i].Date[5:7]

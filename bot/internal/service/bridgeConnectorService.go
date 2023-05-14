@@ -104,6 +104,7 @@ func (s *BridgeConnectorService) CreateInstanceToBeDelivered(update tgbotapi.Upd
 }
 
 func transformCurrentDate(year, month, day int) (string, string, string) {
+	utils.Logger.Info("", zap.Ints("Date", []int{year, month, day}))
 	yearStr := strconv.Itoa(year)
 	var monthStr string
 	if month < 10 {
@@ -113,7 +114,7 @@ func transformCurrentDate(year, month, day int) (string, string, string) {
 	}
 	var dayStr string
 	if day < 10 {
-		monthStr = fmt.Sprintf("0%d", day)
+		dayStr = fmt.Sprintf("0%d", day)
 	} else {
 		dayStr = strconv.Itoa(day)
 	}

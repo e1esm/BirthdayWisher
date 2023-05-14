@@ -29,9 +29,10 @@ func NewServer(userService *service.UserService, gptService *service.GPTService,
 func (s *Server) SaveUserInfo(ctx context.Context, req *bot_to_server_proto.UserRequest) (*emptypb.Empty, error) {
 	start := time.Now()
 	chat := model.NewChat(req.ChatRequest.ChatID, req.ChatRequest.ChatID)
+
 	date, err := time.Parse(time.DateOnly, req.Date)
 	if err != nil {
-		utils.Logger.Error("Time parse error", zap.String("error", err.Error()))
+		utils.Logger.Error("Time parse error", zap.String("error", err.Error()), zap.String("date", req.Date))
 		return new(emptypb.Empty), err
 	}
 	localization, err := time.LoadLocation("Europe/Moscow")

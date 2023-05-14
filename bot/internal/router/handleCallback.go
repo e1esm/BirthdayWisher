@@ -80,6 +80,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 				return
 			}
 			state.RWapInstance.Mutex.Lock()
+			stateCFG.Day = tempDay
 			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
 			state.RWapInstance.Mutex.Unlock()
 
@@ -87,11 +88,16 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 			if _, err := r.bot.Request(messageToBeDeleted); err != nil {
 				state.Logger.Error(err.Error(), zap.Int("messageID", stateCFG.MessageID))
 			}
-			successMessage := tgbotapi.NewMessage(stateCFG.ChatID, fmt.Sprintf("Ваши(%s) данные успешно записаны в БД %s", callback.From.FirstName, emoji.CheckBoxWithCheck.String()))
-			r.bot.Send(successMessage)
 
-			//TODO Add user's info to the DB
+			err := r.ConnectorService.CreateInstanceToBeDelivered(update)
 
+			if err != nil {
+				failedMessage := tgbotapi.NewMessage(stateCFG.ChatID, fmt.Sprintf("Ваши данные не удалось сохранить %s", emoji.CrossMark))
+				r.bot.Send(failedMessage)
+			} else {
+				successMessage := tgbotapi.NewMessage(stateCFG.ChatID, fmt.Sprintf("Ваши(%s) данные успешно сохранены %s", callback.From.FirstName, emoji.CheckBoxWithCheck.String()))
+				r.bot.Send(successMessage)
+			}
 			state.RWapInstance.Mutex.Lock()
 			delete(state.RWapInstance.UserStateConfigs, callback.From.ID)
 			state.RWapInstance.Mutex.Unlock()

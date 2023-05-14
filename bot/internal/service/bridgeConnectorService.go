@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"io"
+	"strconv"
 )
 
 type ConnectorService interface {
@@ -80,6 +81,42 @@ func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (tgbotapi.FileB
 	return receivedFile, nil
 }
 
-func (s *BridgeConnectorService) CreateInstanceToBeDelivered(update tgbotapi.Update, userID int64) {
+func (s *BridgeConnectorService) CreateInstanceToBeDelivered(update tgbotapi.Update) error {
+	chat := bridge.NewChat(update.FromChat().ID)
 
+	utils.RWapInstance.Mutex.RLock()
+	v, _ := utils.RWapInstance.UserStateConfigs[update.SentFrom().ID]
+	utils.RWapInstance.Mutex.RUnlock()
+	year, month, day := transformCurrentDate(v.Year, v.Month, v.Day)
+	date := fmt.Sprintf("%s-%s-%s", year, month, day)
+
+	user := bridge.NewUser(
+		v.UserID,
+		date,
+		*chat,
+		update.SentFrom().FirstName+update.SentFrom().LastName,
+	)
+	if err := s.SaveUser(*user); err != nil {
+		utils.Logger.Error("Couldn't have saved a user")
+		return err
+	}
+	return nil
+}
+
+func transformCurrentDate(year, month, day int) (string, string, string) {
+	yearStr := strconv.Itoa(year)
+	var monthStr string
+	if month < 10 {
+		monthStr = fmt.Sprintf("0%d", month)
+	} else {
+		monthStr = strconv.Itoa(month)
+	}
+	var dayStr string
+	if day < 10 {
+		monthStr = fmt.Sprintf("0%d", day)
+	} else {
+		dayStr = strconv.Itoa(day)
+	}
+
+	return yearStr, monthStr, dayStr
 }

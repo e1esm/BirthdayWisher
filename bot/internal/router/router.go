@@ -7,10 +7,11 @@ import (
 )
 
 type Switcher interface {
-	addDate(update tgbotapi.Update)
+	setDate(update tgbotapi.Update)
 	list(message tgbotapi.Message)
 	soon(message tgbotapi.Message)
 	help(message tgbotapi.Message)
+	delete(message tgbotapi.Message)
 }
 
 type BirthdayRouter struct {

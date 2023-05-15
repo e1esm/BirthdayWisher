@@ -12,5 +12,7 @@ func (r *BirthdayRouter) PickCommand(update tgbotapi.Update) {
 		r.setDate(update)
 	case "help":
 		r.help(*update.Message)
+	case "delete":
+		r.delete(*update.Message)
 	}
 }

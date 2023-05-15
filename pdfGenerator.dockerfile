@@ -34,6 +34,7 @@ ENV TZ="Europe/Moscow"
 ENV GOBIN /go/bin
 
 WORKDIR /app/pdfGenerator
+RUN mkdir generated_pdfs
 
 COPY cron /etc/cron.d/cronjob
 RUN chmod 0644 /etc/cron.d/cronjob

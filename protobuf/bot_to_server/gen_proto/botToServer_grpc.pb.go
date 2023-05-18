@@ -24,6 +24,7 @@ const (
 	CongratulationService_GetDataForCongratulations_FullMethodName = "/bridgeServer_service.CongratulationService/GetDataForCongratulations"
 	CongratulationService_GetSoonBirthdays_FullMethodName          = "/bridgeServer_service.CongratulationService/GetSoonBirthdays"
 	CongratulationService_GetStatistics_FullMethodName             = "/bridgeServer_service.CongratulationService/GetStatistics"
+	CongratulationService_DeleteUser_FullMethodName                = "/bridgeServer_service.CongratulationService/DeleteUser"
 )
 
 // CongratulationServiceClient is the client API for CongratulationService service.
@@ -34,6 +35,7 @@ type CongratulationServiceClient interface {
 	GetDataForCongratulations(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (CongratulationService_GetDataForCongratulationsClient, error)
 	GetSoonBirthdays(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (*ChatBirthdaysResponse, error)
 	GetStatistics(ctx context.Context, in *ChatRequest, opts ...grpc.CallOption) (*PDFResponse, error)
+	DeleteUser(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
 
 type congratulationServiceClient struct {
@@ -103,6 +105,15 @@ func (c *congratulationServiceClient) GetStatistics(ctx context.Context, in *Cha
 	return out, nil
 }
 
+func (c *congratulationServiceClient) DeleteUser(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
+	out := new(DeleteResponse)
+	err := c.cc.Invoke(ctx, CongratulationService_DeleteUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CongratulationServiceServer is the server API for CongratulationService service.
 // All implementations must embed UnimplementedCongratulationServiceServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type CongratulationServiceServer interface {
 	GetDataForCongratulations(*emptypb.Empty, CongratulationService_GetDataForCongratulationsServer) error
 	GetSoonBirthdays(context.Context, *ChatRequest) (*ChatBirthdaysResponse, error)
 	GetStatistics(context.Context, *ChatRequest) (*PDFResponse, error)
+	DeleteUser(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedCongratulationServiceServer()
 }
 
@@ -129,6 +141,9 @@ func (UnimplementedCongratulationServiceServer) GetSoonBirthdays(context.Context
 }
 func (UnimplementedCongratulationServiceServer) GetStatistics(context.Context, *ChatRequest) (*PDFResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStatistics not implemented")
+}
+func (UnimplementedCongratulationServiceServer) DeleteUser(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
 func (UnimplementedCongratulationServiceServer) mustEmbedUnimplementedCongratulationServiceServer() {}
 
@@ -218,6 +233,24 @@ func _CongratulationService_GetStatistics_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CongratulationService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CongratulationServiceServer).DeleteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CongratulationService_DeleteUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CongratulationServiceServer).DeleteUser(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CongratulationService_ServiceDesc is the grpc.ServiceDesc for CongratulationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -236,6 +269,10 @@ var CongratulationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStatistics",
 			Handler:    _CongratulationService_GetStatistics_Handler,
+		},
+		{
+			MethodName: "DeleteUser",
+			Handler:    _CongratulationService_DeleteUser_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -25,6 +25,13 @@ func NewBridgeConnectorService(client gen_proto.CongratulationServiceClient) *Br
 }
 
 func (s *BridgeConnectorService) DeleteUser(userID, chatID int64) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	deleteResp, err := s.client.DeleteUser(ctx, &gen_proto.DeleteRequest{UserID: userID, ChatID: chatID})
+	if err != nil {
+		utils.Logger.Error(deleteResp.ErrorDescription)
+		return err
+	}
 	return nil
 }
 

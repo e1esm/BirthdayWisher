@@ -84,7 +84,7 @@ func (s *Server) GetSoonBirthdays(ctx context.Context, req *bot_to_server_proto.
 }
 
 func (s *Server) GetStatistics(ctx context.Context, req *bot_to_server_proto.ChatRequest) (*bot_to_server_proto.PDFResponse, error) {
-	//start := time.Now()
+	start := time.Now()
 	utils.Logger.Info("")
 	serverToPDFprotoRequest := pdf_proto.PDFRequest{ChatID: req.ChatID}
 	response, err := s.pdfService.QueryForPDF(ctx, &serverToPDFprotoRequest)
@@ -92,7 +92,15 @@ func (s *Server) GetStatistics(ctx context.Context, req *bot_to_server_proto.Cha
 		utils.Logger.Error("Got an error while retrieving PDF in GetPDF method of bridgeServer", zap.String("err", err.Error()))
 		return &bot_to_server_proto.PDFResponse{Data: response.Data}, err
 	}
-	//elapsed := time.Since(start).Seconds()
-	//utils.GrpcRequestDuration.Observe(elapsed)
+	elapsed := time.Since(start).Seconds()
+	utils.GrpcRequestDuration.Observe(elapsed)
 	return &bot_to_server_proto.PDFResponse{Data: response.Data}, nil
+}
+
+func (s *Server) DeleteUser(ctx context.Context, req *bot_to_server_proto.DeleteRequest) (*bot_to_server_proto.DeleteResponse, error) {
+	err := s.userService.DeleteUser(req.ChatID, req.UserID)
+	if err != nil {
+		return &bot_to_server_proto.DeleteResponse{ErrorDescription: err.Error()}, err
+	}
+	return &bot_to_server_proto.DeleteResponse{ErrorDescription: ""}, err
 }

@@ -37,11 +37,24 @@ func (r *UserRepository) SaveUser(user *model.User) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.Logger.Info("Created user", zap.String("user", user.Username))
 		r.db.Debug().Create(user)
-	} else {
-		utils.Logger.Info("Updated user", zap.String("user", user.Username))
-		//r.db.Model(user).Omit("CurrentChat").Update("date", user.Date)
-		r.db.Model(user).Select("CurrentChat")
+		return
 	}
+	isChatFound := false
+	for _, v := range retrievedUser.CurrentChat {
+		if v == user.CurrentChat[0] {
+			isChatFound = true
+			break
+		}
+	}
+	if isChatFound {
+		r.db.Omit("CurrentChat").Model(user).Where("id = ?", user.ID).Update("date", user.Date)
+		utils.Logger.Info("Updated user", zap.String("user", user.Username))
+		return
+	}
+	retrievedUser.CurrentChat = append(retrievedUser.CurrentChat, user.CurrentChat...)
+	r.db.Save(retrievedUser)
+	utils.Logger.Info("Updated user", zap.String("user", user.Username))
+
 }
 
 func (r *UserRepository) FindUsers() []model.User {

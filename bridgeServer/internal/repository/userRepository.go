@@ -24,7 +24,7 @@ func (r *UserRepository) DeleteUser(userID, chatID int64) error {
 	if amountOfRows > 1 {
 		r.db.Select("CurrentChat").Where("chat_id = ? && user_id = ?", chatID, userID).Delete(&model.User{})
 	} else if amountOfRows == 1 {
-		r.db.Delete(&model.User{ID: userID})
+		r.db.Unscoped().Select("CurrentChat").Delete(&model.User{ID: userID})
 	} else {
 		deletionErr = errors.New("there's no such user in the database")
 	}
@@ -39,7 +39,8 @@ func (r *UserRepository) SaveUser(user *model.User) {
 		r.db.Debug().Create(user)
 	} else {
 		utils.Logger.Info("Updated user", zap.String("user", user.Username))
-		r.db.Model(user).Omit("CurrentChat").Update("date", user.Date)
+		//r.db.Model(user).Omit("CurrentChat").Update("date", user.Date)
+		r.db.Model(user).Select("CurrentChat")
 	}
 }
 

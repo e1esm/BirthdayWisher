@@ -22,7 +22,8 @@ func (r *UserRepository) DeleteUser(userID, chatID int64) error {
 	r.db.Raw("SELECT COUNT(*) FROM chats where user_id = ?", userID).Find(&amountOfRows)
 	var deletionErr error
 	if amountOfRows > 1 {
-		r.db.Select("CurrentChat").Where("chat_id = ? && user_id = ?", chatID, userID).Delete(&model.User{})
+		r.db.Model(&model.Chat{}).Unscoped().Where("chats.chat_id = ? and chats.user_id = ?", chatID, userID).Delete(&model.Chat{})
+		//r.db.Select("CurrentChat").Where("chats.chat_id = ? and chats.user_id = ?", chatID, userID).Delete(&model.User{})
 	} else if amountOfRows == 1 {
 		r.db.Unscoped().Select("CurrentChat").Delete(&model.User{ID: userID})
 	} else {

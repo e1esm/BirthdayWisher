@@ -7,8 +7,7 @@ import (
 )
 
 type Switcher interface {
-	set(message tgbotapi.Message)
-	setFull(message tgbotapi.Message)
+	addDate(update tgbotapi.Update)
 	change(message tgbotapi.Message)
 	list(message tgbotapi.Message)
 	soon(message tgbotapi.Message)

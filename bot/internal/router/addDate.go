@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (r *BirthdayRouter) addDate(update tgbotapi.Update) {
+func (r *BirthdayRouter) setDate(update tgbotapi.Update) {
 	currentStateConfig := state.StateConfig{
 		CurrentState: state.START,
 		UserID:       update.SentFrom().ID,

@@ -17,6 +17,20 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+func (r *UserRepository) DeleteUser(userID, chatID int64) error {
+	var amountOfRows int
+	r.db.Raw("SELECT COUNT(*) FROM chats where user_id = ?", userID).Find(&amountOfRows)
+	var deletionErr error
+	if amountOfRows > 1 {
+		r.db.Select("CurrentChat").Where("chat_id = ? && user_id = ?", chatID, userID).Delete(&model.User{})
+	} else if amountOfRows == 1 {
+		r.db.Delete(&model.User{ID: userID})
+	} else {
+		deletionErr = errors.New("there's no such user in the database")
+	}
+	return deletionErr
+}
+
 func (r *UserRepository) SaveUser(user *model.User) {
 	var retrievedUser model.User
 	err := r.db.First(&retrievedUser, user.ID).Error

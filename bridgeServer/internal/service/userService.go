@@ -25,3 +25,7 @@ func (s *UserService) GetUsersWithBirthdayToday() []model.User {
 func (s *UserService) GetUsersWithBirthdaySoon(chatId int64) *bot_to_server_proto.ChatBirthdaysResponse {
 	return s.userRepository.SoonBirthdaysOfUsers(chatId)
 }
+
+func (s *UserService) DeleteUser(chatID int64, userID int64) error {
+	return s.userRepository.DeleteUser(userID, chatID)
+}

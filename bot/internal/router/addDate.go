@@ -6,7 +6,6 @@ import (
 	"github.com/enescakir/emoji"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"log"
 	"time"
 )
 
@@ -18,22 +17,15 @@ func (r *BirthdayRouter) setDate(update tgbotapi.Update) {
 		MessageID:    update.Message.MessageID,
 		Offset:       0,
 	}
-	state.RWapInstance.Mutex.Lock()
-	state.RWapInstance.UserStateConfigs[currentStateConfig.UserID] = currentStateConfig
-	state.RWapInstance.Mutex.Unlock()
-	log.Println(currentStateConfig)
+	state.RWMapInstance.UpdateConfig(currentStateConfig)
 	r.addYear(update)
 }
 
 func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 
-	state.RWapInstance.Mutex.RLock()
-	v, _ := state.RWapInstance.UserStateConfigs[update.SentFrom().ID]
-	state.RWapInstance.Mutex.RUnlock()
+	v, _ := state.RWMapInstance.GetConfig(update.SentFrom().ID)
 	v.CurrentState = state.YEAR
-	state.RWapInstance.Mutex.Lock()
-	state.RWapInstance.UserStateConfigs[v.UserID] = v
-	state.RWapInstance.Mutex.Unlock()
+	state.RWMapInstance.UpdateConfig(v)
 
 	arrRows := make([][]tgbotapi.InlineKeyboardButton, 5)
 	currentOffset := v.Offset
@@ -52,16 +44,12 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 		tgbotapi.NewInlineKeyboardButtonData(emoji.RightArrow.String(), fmt.Sprintf("+12")),
 	}
 	wasMessageIDFound := false
-	state.RWapInstance.Mutex.RLock()
-	v, _ = state.RWapInstance.UserStateConfigs[v.UserID]
-	state.RWapInstance.Mutex.RUnlock()
-	state.RWapInstance.Mutex.Lock()
+	v, _ = state.RWMapInstance.GetConfig(v.UserID)
 	if update.CallbackQuery != nil {
 		v.MessageID = update.CallbackQuery.Message.MessageID
 		wasMessageIDFound = true
 	}
-	state.RWapInstance.UserStateConfigs[v.UserID] = v
-	state.RWapInstance.Mutex.Unlock()
+	state.RWMapInstance.UpdateConfig(v)
 
 	markup := tgbotapi.NewInlineKeyboardMarkup(arrRows...)
 
@@ -79,11 +67,10 @@ func (r *BirthdayRouter) addYear(update tgbotapi.Update) {
 }
 
 func (r *BirthdayRouter) addMonth(update tgbotapi.Update) {
-	state.RWapInstance.Mutex.Lock()
-	v, _ := state.RWapInstance.UserStateConfigs[update.SentFrom().ID]
+
+	v, _ := state.RWMapInstance.GetConfig(update.SentFrom().ID)
 	v.CurrentState = state.MONTH
-	state.RWapInstance.UserStateConfigs[v.UserID] = v
-	state.RWapInstance.Mutex.Unlock()
+	state.RWMapInstance.UpdateConfig(v)
 
 	message := tgbotapi.NewMessage(v.ChatID, "Выберите месяц")
 	message.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(state.GetMonthButtons()...)
@@ -92,11 +79,9 @@ func (r *BirthdayRouter) addMonth(update tgbotapi.Update) {
 
 func (r *BirthdayRouter) addDay(update tgbotapi.Update) {
 
-	state.RWapInstance.Mutex.Lock()
-	v, _ := state.RWapInstance.UserStateConfigs[update.SentFrom().ID]
+	v, _ := state.RWMapInstance.GetConfig(update.SentFrom().ID)
 	v.CurrentState = state.DAY
-	state.RWapInstance.UserStateConfigs[update.SentFrom().ID] = v
-	state.RWapInstance.Mutex.Unlock()
+	state.RWMapInstance.UpdateConfig(v)
 	message := tgbotapi.NewMessage(v.ChatID, "Выберите день")
 	message.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(state.GenerateDaysButtons(v.Month, v.Year)...)
 	r.bot.Send(message)

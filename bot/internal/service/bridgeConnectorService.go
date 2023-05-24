@@ -95,9 +95,7 @@ func (s *BridgeConnectorService) GetChatStatistics(chatID int64) (tgbotapi.FileB
 func (s *BridgeConnectorService) CreateInstanceToBeDelivered(update tgbotapi.Update) error {
 	chat := bridge.NewChat(update.FromChat().ID)
 
-	utils.RWapInstance.Mutex.RLock()
-	v, _ := utils.RWapInstance.UserStateConfigs[update.SentFrom().ID]
-	utils.RWapInstance.Mutex.RUnlock()
+	v, _ := utils.RWMapInstance.GetConfig(update.SentFrom().ID)
 	year, month, day := transformCurrentDate(v.Year, v.Month, v.Day)
 	date := fmt.Sprintf("%s-%s-%s", year, month, day)
 

@@ -14,24 +14,19 @@ var YearIfOmit = 1000
 
 func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 	callback := update.CallbackQuery
-	state.RWapInstance.Mutex.RLock()
-	stateCFG, ok := state.RWapInstance.UserStateConfigs[callback.From.ID]
-	state.RWapInstance.Mutex.RUnlock()
+
+	stateCFG, ok := state.RWMapInstance.GetConfig(update.SentFrom().ID)
 
 	if len(callback.Data) == 3 && stateCFG.CurrentState == state.YEAR {
 		intRepr, _ := strconv.Atoi(callback.Data)
 		stateCFG.Offset -= intRepr
-		state.RWapInstance.Mutex.Lock()
-		state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
-		state.RWapInstance.Mutex.Unlock()
+		state.RWMapInstance.UpdateConfig(stateCFG)
 		r.addYear(update)
 		return
 	}
 	if len(callback.Data) == 1 && stateCFG.CurrentState == state.YEAR {
 		stateCFG.Year = YearIfOmit
-		state.RWapInstance.Mutex.Lock()
-		state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
-		state.RWapInstance.Mutex.Unlock()
+		state.RWMapInstance.UpdateConfig(stateCFG)
 		r.addMonth(update)
 		return
 	}
@@ -46,9 +41,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 				return
 			}
 			stateCFG.Year = tempYear
-			state.RWapInstance.Mutex.Lock()
-			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
-			state.RWapInstance.Mutex.Unlock()
+			state.RWMapInstance.UpdateConfig(stateCFG)
 			messageToBeDeleted := tgbotapi.NewDeleteMessage(stateCFG.ChatID, update.CallbackQuery.Message.MessageID)
 			if _, err := r.bot.Request(messageToBeDeleted); err != nil {
 				state.Logger.Error(err.Error(), zap.Int("messageID", stateCFG.MessageID))
@@ -62,9 +55,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 				return
 			}
 			stateCFG.Month = tempMonth
-			state.RWapInstance.Mutex.Lock()
-			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
-			state.RWapInstance.Mutex.Unlock()
+			state.RWMapInstance.UpdateConfig(stateCFG)
 			messageToBeDeleted := tgbotapi.NewDeleteMessage(stateCFG.ChatID, update.CallbackQuery.Message.MessageID)
 			if _, err := r.bot.Request(messageToBeDeleted); err != nil {
 				state.Logger.Error(err.Error(), zap.Int("messageID", stateCFG.MessageID))
@@ -79,10 +70,9 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 				r.bot.Send(alert)
 				return
 			}
-			state.RWapInstance.Mutex.Lock()
+
 			stateCFG.Day = tempDay
-			state.RWapInstance.UserStateConfigs[callback.From.ID] = stateCFG
-			state.RWapInstance.Mutex.Unlock()
+			state.RWMapInstance.UpdateConfig(stateCFG)
 
 			messageToBeDeleted := tgbotapi.NewDeleteMessage(stateCFG.ChatID, update.CallbackQuery.Message.MessageID)
 			if _, err := r.bot.Request(messageToBeDeleted); err != nil {
@@ -98,9 +88,7 @@ func (r *BirthdayRouter) handleCallback(update tgbotapi.Update) {
 				successMessage := tgbotapi.NewMessage(stateCFG.ChatID, fmt.Sprintf("Ваши(%s) данные успешно сохранены %s", callback.From.FirstName, emoji.CheckBoxWithCheck.String()))
 				r.bot.Send(successMessage)
 			}
-			state.RWapInstance.Mutex.Lock()
-			delete(state.RWapInstance.UserStateConfigs, callback.From.ID)
-			state.RWapInstance.Mutex.Unlock()
+			state.RWMapInstance.DeleteConfig(callback.From.ID)
 			return
 		}
 

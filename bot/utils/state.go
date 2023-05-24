@@ -3,7 +3,7 @@ package utils
 import "sync"
 
 func init() {
-	RWapInstance = RWMap{UserStateConfigs: make(map[int64]StateConfig), Mutex: &sync.RWMutex{}}
+	RWMapInstance = RWMap{UserStateConfigs: make(map[int64]StateConfig), Mutex: &sync.RWMutex{}}
 }
 
 type State int
@@ -15,11 +15,30 @@ const (
 	DAY
 )
 
-var RWapInstance RWMap
+var RWMapInstance RWMap
 
 type RWMap struct {
 	UserStateConfigs map[int64]StateConfig
 	Mutex            *sync.RWMutex
+}
+
+func (r *RWMap) DeleteConfig(UserID int64) {
+	r.Mutex.Lock()
+	delete(r.UserStateConfigs, UserID)
+	r.Mutex.Unlock()
+}
+
+func (r *RWMap) UpdateConfig(config StateConfig) {
+	r.Mutex.Lock()
+	r.UserStateConfigs[config.UserID] = config
+	r.Mutex.Unlock()
+}
+
+func (r *RWMap) GetConfig(UserID int64) (StateConfig, bool) {
+	r.Mutex.Lock()
+	v, ok := r.UserStateConfigs[UserID]
+	r.Mutex.Unlock()
+	return v, ok
 }
 
 type StateConfig struct {

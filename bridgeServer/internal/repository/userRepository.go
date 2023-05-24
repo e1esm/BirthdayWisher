@@ -48,7 +48,7 @@ func (r *UserRepository) SaveUser(user *model.User) {
 		}
 	}
 	if isChatFound {
-		r.db.Omit("CurrentChat").Model(user).Where("id = ?", user.ID).Update("date", user.Date)
+		r.db.Omit("CurrentChat").Model(user).Where("user.id = ?", user.ID).Update("date", user.Date)
 		utils.Logger.Info("Updated user", zap.String("user", user.Username))
 		return
 	}

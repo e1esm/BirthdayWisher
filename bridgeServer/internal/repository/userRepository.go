@@ -23,7 +23,6 @@ func (r *UserRepository) DeleteUser(userID, chatID int64) error {
 	var deletionErr error
 	if amountOfRows > 1 {
 		r.db.Model(&model.Chat{}).Unscoped().Where("chats.chat_id = ? and chats.user_id = ?", chatID, userID).Delete(&model.Chat{})
-		//r.db.Select("CurrentChat").Where("chats.chat_id = ? and chats.user_id = ?", chatID, userID).Delete(&model.User{})
 	} else if amountOfRows == 1 {
 		r.db.Unscoped().Select("CurrentChat").Delete(&model.User{ID: userID})
 	} else {
@@ -34,7 +33,7 @@ func (r *UserRepository) DeleteUser(userID, chatID int64) error {
 
 func (r *UserRepository) SaveUser(user *model.User) {
 	var retrievedUser model.User
-	err := r.db.First(&retrievedUser, user.ID).Error
+	err := r.db.Preload("CurrentChat").First(&retrievedUser, "id = ?", user.ID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.Logger.Info("Created user", zap.String("user", user.Username))
 		r.db.Debug().Create(user)
@@ -42,13 +41,13 @@ func (r *UserRepository) SaveUser(user *model.User) {
 	}
 	isChatFound := false
 	for _, v := range retrievedUser.CurrentChat {
-		if v == user.CurrentChat[0] {
+		if v.UserId == user.ID && v.ChatID == user.CurrentChat[0].ChatID {
 			isChatFound = true
 			break
 		}
 	}
 	if isChatFound {
-		r.db.Omit("CurrentChat").Model(user).Where("user.id = ?", user.ID).Update("date", user.Date)
+		r.db.Omit("CurrentChat").Model(user).Where("users.id = ?", user.ID).Update("date", user.Date)
 		utils.Logger.Info("Updated user", zap.String("user", user.Username))
 		return
 	}

@@ -19,6 +19,7 @@ of the chat with the help of Chat GPT, to which one of microservices in this rep
 - PostgreSQL
 - Docker Compose
 - Telegram Bot API
+- GORM
 - gRPC
 - Prometheus
 - Grafana

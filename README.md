@@ -43,20 +43,20 @@ make buildD
 ```
 
 ## Interface
-- ### Generated PDFs
-![Users in chat](./screenshots/users_in_chat.png)
-![Statistics pie](./screenshots/statistics_pies.png)
-- ### List upcoming birthdays this month
-![Upcoming birthdays](./screenshots/soon_birthdays.png)
 - ### Add birthdate to the database
 Pagination available for choosing from years. You can also abort this operation.
 ![Choose year](./screenshots/chooseYear.png)
 ![Choose month](./screenshots/chooseMonth.png)
 Amount of days varies from the selected month
 ![Choose day](./screenshots/chooseDay.png)
+- ### List upcoming birthdays this month
+![Upcoming birthdays](./screenshots/soon_birthdays.png)
 - ### Congratulation examples
 ![First example](./screenshots/congratulationExample.png)
 ![Second example](./screenshots/congratulationExample2.png)
+- ### Generated PDFs
+![Users in chat](./screenshots/users_in_chat.png)
+![Statistics pie](./screenshots/statistics_pies.png)
 
 
 ## Author
